@@ -189,9 +189,6 @@ function Evtx-Filter {
 
         if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('FieldValue') ) {
 
-#            $MyEventId = "4689"
-#            $MyField = "Status"
-#            $MyValue = "0x0"
             Write-Host "[+] Searching Field    : $Field=$FieldValue"
 
             if ( $PSBoundParameters.ContainsKey('LogSearch') ) {
@@ -308,8 +305,8 @@ function Evtx-Filter {
                     $Result += "    - mitre.attack.txxxx.xxx" + "`r`n"
                     $Result += "status: stable / testing / experimental" + "`r`n"
                     $Result += "author: Croko" + "`r`n"
-                    $Result += "date:" + (Get-Date).GetDateTimeFormats()[0] + "`r`n"
-                    $Result += "modified:" + (Get-Date).GetDateTimeFormats()[0] + "`r`n"
+                    $Result += "date: " + (Get-Date).GetDateTimeFormats()[0] + "`r`n"
+                    $Result += "modified: " + (Get-Date).GetDateTimeFormats()[0] + "`r`n"
                     $Result += "logsource:" + "`r`n"
                     $Result += "    product: windows" + "`r`n"
                     If ( $System.Channel ) {
