@@ -50,17 +50,16 @@ function Evtx-Filter {
         [Parameter( Mandatory=$true , Position=0, ParameterSetName="ListLog" )]
         [Switch] $ListLog,
         [Parameter( Mandatory=$true , Position=0, ParameterSetName="LogSearch" )]
-        [Parameter( ParameterSetName="RawSearch", Position=0 )]
-        [Parameter( ParameterSetName="EventId" )]
         [Parameter( ParameterSetName="ListEventId" )]
+        [Parameter( ParameterSetName="RawSearch" )]
         [String] $LogSearch,
         [Parameter( Mandatory=$true , Position=0, ParameterSetName="LogPath" )]
+        [Parameter( ParameterSetName="ListEventId" )]
+        [Parameter( ParameterSetName="RawSearch" )]
         [String] $LogPath = "C:\Windows\System32\Winevt\Logs\Security.evtx",
-        [Parameter( ParameterSetName="LogSearch" )]
-        [Parameter( ParameterSetName="LogPath" )]
+        [Parameter( ParameterSetName="RawSearch" )]
         [String] $RawSearch,
-        [Parameter( ParameterSetName="LogSearch" )]
-        [Parameter( ParameterSetName="LogPath" )]
+        [Parameter( ParameterSetName="ListEventId" )]
         [Switch] $ListEventId,
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
@@ -73,10 +72,8 @@ function Evtx-Filter {
         [String] $FieldValue,
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
+        [Parameter( ParameterSetName="RawSearch" )]
         [Switch] $OnlyOne,
-        [Parameter( ParameterSetName="LogSearch" )]
-        [Parameter( ParameterSetName="LogPath" )]
-        [String] $OutFile,
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
         [Switch] $ConvertToSigma,
@@ -95,10 +92,7 @@ function Evtx-Filter {
 
     if ( $PSBoundParameters.ContainsKey('ListLog') ) {
 
-        Write-Host "[+]   _    _ ____ ___ _    ____ ____ "
-        Write-Host "[+]   |    | [__   |  |    |  | | __ "
-        Write-Host "[+]   |___ | ___]  |  |___ |__| |__] "
-        Write-Host "[+]                                  "
+        Write-Host "[+] Listing computer eventLogs"
         Get-WinEvent -ListLog * | Select-Object RecordCount,LogName
     
     }
@@ -113,7 +107,7 @@ function Evtx-Filter {
 
         } else {
 
-            Write-Host "[x] $LogPath not found."
+            Write-Host "[x] [x] No EventLog found with fullpath : $LogPath"
             break
 
         }
@@ -133,7 +127,7 @@ function Evtx-Filter {
 
         } else {
 
-            Write-output "[x] No EventLog found with name : $LogSearch"
+            Write-Host "[x] No EventLog found with name : $LogSearch"
             Break
 
         }
@@ -143,11 +137,7 @@ function Evtx-Filter {
 
     if ( $PSBoundParameters.ContainsKey('RawSearch') ) {
 
-        Write-Host "[+]   ____ ____ _ _ _ ____ ____ ____ ____ ____ _  _  "
-        Write-Host "[+]   |__/ |__| | | | [__  |___ |__| |__/ |    |__|  "
-        Write-Host "[+]   |  \ |  | |_|_| ___] |___ |  | |  \ |___ |  |  "
-        Write-Host "[+]                                                  "
-        Write-Host "[+] Searching keyword '$RawSearch'"
+        Write-Host "[+] Searching with Raw keyword : '$RawSearch'"
         $match = Invoke-Expression $Request | Where-Object -Property Message -Match '$RawSearch'
         if ( $match.count -ne 0 ) {
             Write-Host "[+] Match found :"
@@ -162,20 +152,16 @@ function Evtx-Filter {
 
     if ( $PSBoundParameters.ContainsKey('ListEventId') ) {
 
-        Write-Host "[+]                                                  "
-        Write-Host "[+]   ____ _  _ ____ _  _ ___ _ ___  _    _ ____ ___ "
-        Write-Host "[+]   |___ |  | |___ |\ |  |  | |  \ |    | [__   |  "
-        Write-Host "[+]   |___  \/  |___ | \|  |  | |__/ |___ | ___]  |  "
-        Write-Host "[+]                                                  "
+        Write-Host "[+] Searching EventID list."
         $ListOfEventId = Invoke-Expression $RequestLog | Select-Object Id | Sort-Object Id -Unique
 
         if ( $ListOfEventId.count -ne 0 ) {
 
             $ListOfEventId.Id
             If ( $PSBoundParameters.ContainsKey('OutDir') ) {
+                Write-Host "[+] Storing SIGMA rules in directory : $OutDir"
                 ForEach ( $SearchId in $ListOfEventId.Id ) {
                     If ( $PSBoundParameters.ContainsKey('LogSearch') ) {
-                        Write-Host "Evtx-Filter -LogSearch $LogSearch -EventId $SearchId -OnlyOne -ConvertToSigma -OutDir $OutDir"
                         Evtx-Filter -LogSearch $LogSearch -EventId $SearchId -OnlyOne -ConvertToSigma -OutDir $OutDir
                     }
                     If ( $PSBoundParameters.ContainsKey('LogPath') ) {
@@ -186,7 +172,7 @@ function Evtx-Filter {
 
         } else {
 
-            Write-output "[x] EventLog seems to be empty."
+            Write-Host "[x] EventLog seems to be empty."
             Break
 
         }
@@ -196,27 +182,21 @@ function Evtx-Filter {
 
     if ( $PSBoundParameters.ContainsKey('EventId') ) {
 
-        Write-Host "[+]                                  "
-        Write-Host "[+]   ____ _  _ ____ _  _ ___ _ ___  "
-        Write-Host "[+]   |___ |  | |___ |\ |  |  | |  \ "
-        Write-Host "[+]   |___  \/  |___ | \|  |  | |__/ "
-        Write-Host "[+]                                  "
-
-        Write-Output "[+] Searching EventId  : $EventId"
+        Write-Host "[+] Searching EventId  : $EventId"
 
         if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('FieldValue') ) {
 
 #            $MyEventId = "4689"
 #            $MyField = "Status"
 #            $MyValue = "0x0"
-
+            Write-Host "[+] Searching Field    : $Field=$FieldValue"
 
             if ( $PSBoundParameters.ContainsKey('LogSearch') ) {
-                $query = "<QueryList>`r`n  <Query Id='0' Path='$LogSearch'>`r`n    <Select Path='$LogSearch'>`r`n    *[System[(EventID=$EventId)] and EventData[Data[@Name='$Field']='$FieldValue']]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
+                $query = "<QueryList>`r`n  <Query Id='0' Path='$LogSearch'>`r`n    <Select Path='$LogSearch'>`r`n    *[System[(EventID=$EventId)] and EventData[Data[@Name='$Field']='$FieldValue']] or *[System[(EventID=$EventId)] and System[($Field='$FieldValue')]]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
             }
 
             if ( $PSBoundParameters.ContainsKey('LogPath') ) {
-                $query = "<QueryList>`r`n  <Query Id='0' Path='$LogPath'>`r`n    <Select Path='$LogPath'>`r`n    *[System[(EventID=$EventId)] and EventData[Data[@Name='$Field']='$FieldValue']]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
+                $query = "<QueryList>`r`n  <Query Id='0' Path='$LogPath'>`r`n    <Select Path='$LogPath'>`r`n    *[System[(EventID=$EventId)] and EventData[Data[@Name='$Field']='$FieldValue']] or *[System[(EventID=$EventId)] and System[($Field='$FieldValue')]]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
             }
 
         } else {
@@ -363,12 +343,12 @@ function Evtx-Filter {
                     $Result += "    timeframe: 15s / 30m / 12h / 7d / 3M" + "`r`n"
                     $Result += "    condition: selection and filter" + "`r`n"
                     $Result += "fields:" + "`r`n"
-                        foreach ( $SysData in $System.Keys ) {
-                            $Result += "    - " + $SysData + "`r`n"
-                        }
-                        foreach ( $Data in $(Get-Variable "$LogType" -ValueOnly).Keys ) {
-                            $Result += "    - " + $Data + "`r`n"
-                        }
+                    foreach ( $SysData in $System.Keys ) {
+                        $Result += "    - " + $SysData + "`r`n"
+                    }
+                    foreach ( $Data in $(Get-Variable "$LogType" -ValueOnly).Keys ) {
+                        $Result += "    - " + $Data + "`r`n"
+                    }
                     $Result += "falsepositives:" + "`r`n"
                     $Result += "    - Explain what could be falsepositives / None" + "`r`n"
                     $Result += "level: informational / low / medium / high / critical" + "`r`n"
@@ -379,7 +359,8 @@ function Evtx-Filter {
         
                     if ( !(Test-Path $OutDir) ) {
 
-                         New-Item -Path $OutDir -type directory -Force 
+                        Write-Host "[+] Creating output directory : $OutDir"
+                        New-Item -Path $OutDir -type directory -Force 
 
                     }
 
@@ -395,10 +376,12 @@ function Evtx-Filter {
 
                     If ( $PSBoundParameters.ContainsKey('ConvertToSigma') ) {
 
+                        Write-Host "[+] Writing SIGMA rule : $Filename.yml"
                         Set-Content -Path $Filename".yml" -Value ( $Result )
 
                     } Else {
                     
+                        Write-Host "[+] Writing SIGMA rule : $Filename.json"
                         Set-Content -Path $Filename".json" -Value ($System + $EventData | ConvertTo-Json)
 
                     }
@@ -407,36 +390,12 @@ function Evtx-Filter {
         
                     if ( $PSBoundParameters.ContainsKey('ConvertToSigma') ) {
 
-                        if ( ( $PSVersion -le 5 ) -And ( $PSBoundParameters.ContainsKey('Field') -And $PSBoundParameters.ContainsKey('FieldValue') ) ) {
-
-                            if ( ( $System."$Field" -Match $FieldValue ) -Or ( $UserData."$Field" -Match $FieldValue ) -Or ( $EventData."$Field" -Match $FieldValue ) ) {
-
-                                $Result
-
-                            }
-
-                        } else {
-
-                                $Result
-
-                        }
+                        $Result
 
                     } else {
 
-                        if ( ( $PSVersion -le 5 ) -And ( $PSBoundParameters.ContainsKey('Field') -And $PSBoundParameters.ContainsKey('FieldValue') ) ) {
-
-                            if ( ( $System."$Field" -Match $FieldValue ) -Or ( $UserData."$Field" -Match $FieldValue ) -Or ( $EventData."$Field" -Match $FieldValue ) ) {
-
-                                $System + $EventData | ConvertTo-Json
-
-                            }
-
-                        } else {
+                        $System + $EventData | ConvertTo-Json
                         
-                                $System + $EventData | ConvertTo-Json
-                        
-                        }
-
                     }
         
                 }
