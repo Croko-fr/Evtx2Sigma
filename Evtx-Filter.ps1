@@ -79,6 +79,9 @@ function Evtx-Filter {
         [Switch] $ConvertToSigma,
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
+        [String] $Description,
+        [Parameter( ParameterSetName="LogSearch" )]
+        [Parameter( ParameterSetName="LogPath" )]
         [String] $OutDir
     )
 
@@ -293,7 +296,11 @@ function Evtx-Filter {
 
                     $Result = [String]"title: " + $System.Provider + " EventID " + $System.EventID + "`r`n"
                     $Result += "id: " + (New-Guid).Guid + "`r`n"
-                    $Result += "description: " + $System.Provider + "`r`n"
+                    if ( $PSBoundParameters.ContainsKey('Description') ) {
+                        $Result += "description: " + $Description + "`r`n"
+                    } else {
+                        $Result += "description: " + $System.Provider + "`r`n"
+                    }
                     $Result += "references:" + "`r`n"
                     $Result += "    - https://www.awesome-security-blog.com/vulns/cve-2021-xxxxx" + "`r`n"
                     $Result += "tags:" + "`r`n"
