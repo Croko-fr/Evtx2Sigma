@@ -234,45 +234,9 @@ function Evtx-Filter {
         $query
         $Request = $Request+' -FilterXml "$query" -ErrorAction SilentlyContinue'
 
-    } Else {
-
-<#
-        if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('FieldValue') ) {
-
-            if ( $PSBoundParameters.ContainsKey('LogSearch') ) {
-                
-                $Specific_Execution = "ProcessID","ThreadID"
-                $Specific_Provider  = "Name","Guid"
-
-                if ( $Specific_Execution -contains "$Field" ) {
-                    $query = "<QueryList>`r`n  <Query Id='0' Path='$LogSearch'>`r`n    <Select Path='$LogSearch'>`r`n    *[System[($Field='$FieldValue')] or [EventData[Data[@Name='$Field']='$FieldValue']]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
-                }
-
-                if ( $Specific_Provider -contains "$Field" ) {
-                    $query = "<QueryList>`r`n  <Query Id='0' Path='$LogSearch'>`r`n    <Select Path='$LogSearch'>`r`n    *[System[($Field='$FieldValue')] or [EventData[Data[@Name='$Field']='$FieldValue']]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
-                }
-
-            }
-
-            if ( $PSBoundParameters.ContainsKey('LogPath') ) {
-                $query = "<QueryList>`r`n  <Query Id='0' Path='$LogPath'>`r`n    <Select Path='$LogPath'>`r`n    *[System[($Field='$FieldValue')] or [EventData[Data[@Name='$Field']='$FieldValue']]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
-            }
-
-            $query
-            $Request = $Request+' -FilterXml "$query" -ErrorAction SilentlyContinue'
-
-        } else {
-#>
-
-            $Request = $RequestLog    
-
-#        }
-   
     }
 
-
-
-
+    
     If ( -not $PSBoundParameters.ContainsKey('ListEventId') -and -not $PSBoundParameters.ContainsKey('ListLog') ) {
 
         Write-Host "REQUEST : "$Request -ForegroundColor Red
@@ -304,6 +268,7 @@ function Evtx-Filter {
                     switch ( $eventXML.Event.System.ChildNodes[$i].Name ) {
                         "Execution"   {
                                         $System.add( "ThreadID" , $eventXML.Event.System.Execution.ThreadID )
+                                        $System.add( "ProcessID" , $eventXML.Event.System.Execution.ProcessID )
                                         break
                                         }
                         "TimeCreated" {
@@ -346,7 +311,7 @@ function Evtx-Filter {
 
                 if ( $PSBoundParameters.ContainsKey('ConvertToSigma') ) {
 
-                    $Result = [String]"title: " + $System.Provider + " EventId " + $System.EventId + "`r`n"
+                    $Result = [String]"title: " + $System.Provider + " EventID " + $System.EventID + "`r`n"
                     $Result += "id: " + (New-Guid).Guid + "`r`n"
                     $Result += "description: " + $System.Provider + "`r`n"
                     $Result += "references:" + "`r`n"
