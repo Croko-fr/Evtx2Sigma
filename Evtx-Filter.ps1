@@ -110,7 +110,7 @@ function Evtx-Filter {
 
         } else {
 
-            Write-Host "[x] [x] No EventLog found with fullpath : $LogPath"
+            Write-Host "[x] No EventLog found with fullpath : $LogPath"
             break
 
         }
@@ -196,7 +196,7 @@ function Evtx-Filter {
             }
 
             if ( $PSBoundParameters.ContainsKey('LogPath') ) {
-                $query = "<QueryList>`r`n  <Query Id='0' Path='$LogPath'>`r`n    <Select Path='$LogPath'>`r`n    *[System[(EventID=$EventId)] and EventData[Data[@Name='$Field']='$FieldValue']] or *[System[(EventID=$EventId)] and System[($Field='$FieldValue')]]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
+                $query = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>`r`n    *[System[(EventID=$EventId)] and EventData[Data[@Name='$Field']='$FieldValue']] or *[System[(EventID=$EventId)] and System[($Field='$FieldValue')]]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
             }
 
         } else {
@@ -206,7 +206,7 @@ function Evtx-Filter {
             }
 
             if ( $PSBoundParameters.ContainsKey('LogPath') ) {
-                $query = "<QueryList>`r`n  <Query Id='0' Path='$LogPath'>`r`n    <Select Path='$LogPath'>`r`n    *[System[(EventID=$EventId)] ]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
+                $query = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>`r`n    *[System[(EventID=$EventId)] ]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
             }
               
         }
