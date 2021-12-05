@@ -333,11 +333,12 @@ function Evtx-Filter {
                             } else {
 
                                 $MultiLine = ($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")
+                                $Result += "        $Data|contains:`r`n"
                                 foreach ( $line in $MultiLine ) {
                                     if ( $line -ne "" ) {
-                                        $Result += "        $Data|contains: " + $line.trim() + "`r`n"
-                                    }
-                                }
+                                        $Result += "            - " + $line.trim() + "`r`n"
+									}
+								}
 
                             }
                         }
