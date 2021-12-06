@@ -123,7 +123,8 @@ function Evtx-Filter {
         if ( Test-Path "$LogPath" ) {
 
             Write-Host "[+] Searching EventLog : $LogPath"
-            $RequestLog = $Request+" -Path $LogPath"
+            $query = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>*</Select>`r`n  </Query>`r`n</QueryList>`r`n"
+			$Request = $Request+' -FilterXml "$query" -ErrorAction SilentlyContinue'
 
         } else {
 
@@ -143,7 +144,8 @@ function Evtx-Filter {
         if ( $LogName.Length -ne 0 ) {
 
             Write-Host "[+] Searching EventLog : $LogSearch"
-            $RequestLog = $Request+" -LogName $LogSearch"
+            $query = "<QueryList>`r`n  <Query Id='0' Path='$LogSearch'>`r`n    <Select Path='$LogSearch'>*</Select>`r`n  </Query>`r`n</QueryList>`r`n"
+			$Request = $Request+' -FilterXml "$query" -ErrorAction SilentlyContinue'
 
         } else {
 
@@ -173,7 +175,7 @@ function Evtx-Filter {
     if ( $PSBoundParameters.ContainsKey('ListEventId') ) {
 
         Write-Host "[+] Searching EventID list."
-        $ListOfEventId = Invoke-Expression $RequestLog | Select-Object Id | Sort-Object Id -Unique
+        $ListOfEventId = Invoke-Expression $Request | Select-Object Id | Sort-Object Id -Unique
 
         if ( $ListOfEventId.count -ne 0 ) {
 
