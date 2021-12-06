@@ -104,9 +104,9 @@ function Evtx-Filter {
 
 
     if ( $PSBoundParameters.ContainsKey('OnlyOne') ) {
-        $Request = "Get-WinEvent -MaxEvent 1"
+        $Command = "Get-WinEvent -MaxEvent 1"
     } else {
-        $Request = "Get-WinEvent"
+        $Command = "Get-WinEvent"
     }
 
 
@@ -124,7 +124,7 @@ function Evtx-Filter {
 
             Write-Host "[+] Searching EventLog : $LogPath"
             $query = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>*</Select>`r`n  </Query>`r`n</QueryList>`r`n"
-            $Request = $Request+' -FilterXml "$query" -ErrorAction SilentlyContinue'
+            $Request = $Command+' -FilterXml "$query" -ErrorAction SilentlyContinue'
 
         } else {
 
@@ -145,7 +145,7 @@ function Evtx-Filter {
 
             Write-Host "[+] Searching EventLog : $LogSearch"
             $query = "<QueryList>`r`n  <Query Id='0' Path='$LogSearch'>`r`n    <Select Path='$LogSearch'>*</Select>`r`n  </Query>`r`n</QueryList>`r`n"
-            $Request = $Request+' -FilterXml "$query" -ErrorAction SilentlyContinue'
+            $Request = $Command+' -FilterXml "$query" -ErrorAction SilentlyContinue'
 
         } else {
 
@@ -230,15 +230,16 @@ function Evtx-Filter {
               
         }
 
-        $query
-        $Request = $Request+' -FilterXml "$query" -ErrorAction SilentlyContinue'
+        $Request = $Command+' -FilterXml "$query" -ErrorAction SilentlyContinue'
 
     }
 
     
     If ( -not $PSBoundParameters.ContainsKey('ListEventId') -and -not $PSBoundParameters.ContainsKey('ListLog') ) {
 
-        Write-Host "REQUEST : "$Request -ForegroundColor Red
+        Write-Host "[+] XPath query :"
+        Write-Host $query
+        Write-Host "[+] Launching XPath REQUEST : "$Request
 
         $Events = Invoke-Expression $Request
 
