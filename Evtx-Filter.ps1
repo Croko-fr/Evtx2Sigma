@@ -324,7 +324,7 @@ function Evtx-Filter {
 
                     foreach ( $Data in $(Get-Variable "$LogType" -ValueOnly).Keys ) {
 
-                        if ( ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne $null ) -or ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "NULL" ) -or ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "null" ) ) {
+                        if ( ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne $null ) -or ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "NULL" ) -or ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "null" ) -or ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "Null" ) ) {
                             # Add your selection of Keys here
                             if ( (($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")).Count -eq 1 ) {
 
