@@ -124,7 +124,7 @@ function Evtx-Filter {
 
             Write-Host "[+] Searching EventLog : $LogPath"
             $query = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>*</Select>`r`n  </Query>`r`n</QueryList>`r`n"
-			$Request = $Request+' -FilterXml "$query" -ErrorAction SilentlyContinue'
+            $Request = $Request+' -FilterXml "$query" -ErrorAction SilentlyContinue'
 
         } else {
 
@@ -145,7 +145,7 @@ function Evtx-Filter {
 
             Write-Host "[+] Searching EventLog : $LogSearch"
             $query = "<QueryList>`r`n  <Query Id='0' Path='$LogSearch'>`r`n    <Select Path='$LogSearch'>*</Select>`r`n  </Query>`r`n</QueryList>`r`n"
-			$Request = $Request+' -FilterXml "$query" -ErrorAction SilentlyContinue'
+            $Request = $Request+' -FilterXml "$query" -ErrorAction SilentlyContinue'
 
         } else {
 
@@ -347,14 +347,31 @@ function Evtx-Filter {
                             # Add your selection of Keys here
                             if ( (($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")).Count -eq 1 ) {
 
-                                $Result += "        $Data|contains: " + $(Get-Variable "$LogType" -ValueOnly).$Data + "`r`n"
+                                if ( ($(Get-Variable "$LogType" -ValueOnly).$Data).Contains(",") ) {
+
+                                    $Result += "        $Data|contains:`r`n"
+
+                                    $MultiLine = ($(Get-Variable "$LogType" -ValueOnly).$Data).Split(",")
+                                    foreach ( $line in $MultiLine ) {
+                                        if ( $line -ne "" ) {
+                                            $Result += "            - " + $line.trim() + "`r`n"
+                                        }
+                                    }
+
+                                } else {
+
+                                    $Result += "        $Data|contains: " + $(Get-Variable "$LogType" -ValueOnly).$Data + "`r`n"
+
+                                }
 
                             } else {
+
+                                $Result += "        $Data|contains:`r`n"
 
                                 $MultiLine = ($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")
                                 foreach ( $line in $MultiLine ) {
                                     if ( $line -ne "" ) {
-                                        $Result += "        $Data|contains: " + $line.trim() + "`r`n"
+                                        $Result += "            - " + $line.trim() + "`r`n"
                                     }
                                 }
 
