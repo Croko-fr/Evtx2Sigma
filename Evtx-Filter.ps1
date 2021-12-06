@@ -1,46 +1,63 @@
 <#
-.SYNOPSIS
+## .SYNOPSIS
+
 Search script for easy Evtx lookup and SIGMA rule generation.
 
-.DESCRIPTION
+## .DESCRIPTION
 With this script you will be able to get informations from evtx files.
 You can query a Log for a single or more EventId(s).
 You can list all EventIds from a specific Log.
 You can search for an EventId and a specific value for another field.
 You can generate a SIGMA rule from your search.
 
-.PARAMETER ListLog
+### .PARAMETER ListLog
 Switch to list all logs available on the system.
 Result : gives RecordCount per LogName
 
-.PARAMETER LogSearch
+### .PARAMETER LogSearch
 Gives the scope of the search. Must be a valid Logname.
 Defaults to the Security log.
 
-.INPUTS
+### .INPUTS
 None. You cannot pipe objects to Add-Extension.
 
-.OUTPUTS
+### .OUTPUTS
 Screen output or file output as json or sigma rule.
 
-.EXAMPLE
+### .EXAMPLE
+List all Logs with corresponding number of events.
 PS> Evtx-Filter -ListLog
-List all Logs and counts the number of events in them.
 
-.EXAMPLE
+### .EXAMPLE
+Get the EventId list from Events in the current  `Application` log.
 PS> Evtx-Filter -LogSearch Application -ListEventId
-List Application log and shows the available EventId list.
 
-.EXAMPLE
+### .EXAMPLE
+Search `Security` log and shows all the events corresponding to selected EventId.
 PS> Evtx-Filter -LogSearch 'Security' -EventId 4627
-List Security log and shows the events for the selected EventId only.
 
-.EXAMPLE
-PS> Evtx-Filter -LogSearch Security -EventId 4627 -Field LogonType -FieldValue 2
-List Security log and shows the events for the selected EventId and matches a specific Field and a specific value.
+### .EXAMPLE
+Search `Security` log and shows all the events corresponding to selected **EventId** that match a specific **Field** and a specific **FieldValue**.
+PS> Evtx-Filter -LogSearch 'Security' -EventId 4627 -Field 'LogonType' -FieldValue 2
 
-.LINK
-Online version: https://www.github.com/croko-fr/sigma
+### .EXAMPLE
+Search `Security` log and shows **only one** event corresponding to selected **EventId**.
+PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -OnlyOne
+
+### .EXAMPLE
+Search `Security` log for an event corresponding to selected **EventId** and shows **only one** event as **a SIGMA rule**.
+PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -OnlyOne -ConvertToSigma
+
+### .EXAMPLE
+Search `Security` log for an event corresponding to selected **EventId** and outputs **only one** event as **a SIGMA rule** writen in the **OutDir** `./results/`.
+PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -OnlyOne -ConvertToSigma -OutDir ./results/
+
+### .EXAMPLE
+Search `Security` log for all events corresponding to selected **EventId** and outputs **all events** as **SIGMA rules** writen in the **OutDir** `./results/`.
+PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -ConvertToSigma -OutDir ./results/
+
+### .LINK
+Online version: https://www.github.com/croko-fr/Evtx2Sigma
 
 #>
 
@@ -110,7 +127,7 @@ function Evtx-Filter {
 
         } else {
 
-            Write-Host "[x] [x] No EventLog found with fullpath : $LogPath"
+            Write-Host "[x] No EventLog found with fullpath : $LogPath"
             break
 
         }
@@ -196,7 +213,7 @@ function Evtx-Filter {
             }
 
             if ( $PSBoundParameters.ContainsKey('LogPath') ) {
-                $query = "<QueryList>`r`n  <Query Id='0' Path='$LogPath'>`r`n    <Select Path='$LogPath'>`r`n    *[System[(EventID=$EventId)] and EventData[Data[@Name='$Field']='$FieldValue']] or *[System[(EventID=$EventId)] and System[($Field='$FieldValue')]]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
+                $query = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>`r`n    *[System[(EventID=$EventId)] and EventData[Data[@Name='$Field']='$FieldValue']] or *[System[(EventID=$EventId)] and System[($Field='$FieldValue')]]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
             }
 
         } else {
@@ -206,7 +223,7 @@ function Evtx-Filter {
             }
 
             if ( $PSBoundParameters.ContainsKey('LogPath') ) {
-                $query = "<QueryList>`r`n  <Query Id='0' Path='$LogPath'>`r`n    <Select Path='$LogPath'>`r`n    *[System[(EventID=$EventId)] ]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
+                $query = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>`r`n    *[System[(EventID=$EventId)] ]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
             }
               
         }
@@ -333,12 +350,11 @@ function Evtx-Filter {
                             } else {
 
                                 $MultiLine = ($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")
-                                $Result += "        $Data|contains:`r`n"
                                 foreach ( $line in $MultiLine ) {
                                     if ( $line -ne "" ) {
-                                        $Result += "            - " + $line.trim() + "`r`n"
-									}
-								}
+                                        $Result += "        $Data|contains: " + $line.trim() + "`r`n"
+                                    }
+                                }
 
                             }
                         }
