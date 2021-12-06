@@ -67,15 +67,15 @@ function Evtx-Filter {
         [Parameter( Mandatory=$true , Position=0, ParameterSetName="ListLog" )]
         [Switch] $ListLog,
         [Parameter( Mandatory=$true , Position=0, ParameterSetName="LogSearch" )]
-        [Parameter( ParameterSetName="ListEventId" )]
-        [Parameter( ParameterSetName="RawSearch" )]
         [String] $LogSearch,
         [Parameter( Mandatory=$true , Position=0, ParameterSetName="LogPath" )]
-        [Parameter( ParameterSetName="ListEventId" )]
-        [Parameter( ParameterSetName="RawSearch" )]
         [String] $LogPath = "C:\Windows\System32\Winevt\Logs\Security.evtx",
+        [Parameter( ParameterSetName="LogSearch" )]
+        [Parameter( ParameterSetName="LogPath" )]
         [Parameter( ParameterSetName="RawSearch" )]
         [String] $RawSearch,
+        [Parameter( ParameterSetName="LogSearch" )]
+        [Parameter( ParameterSetName="LogPath" )]
         [Parameter( ParameterSetName="ListEventId" )]
         [Switch] $ListEventId,
         [Parameter( ParameterSetName="LogSearch" )]
