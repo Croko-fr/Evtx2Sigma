@@ -257,10 +257,10 @@ function Evtx-Filter {
                 $UserData = @{}
                 $EventData = @{}
 
-                $System.add( "Provider" , $eventXML.Event.System.ChildNodes[0].Name )
-                $System.add( "Guid" , $eventXML.Event.System.ChildNodes[0].Guid )
-                if ( $eventXML.Event.System.ChildNodes[0].EventSourceName ) {
-                    $System.add( "EventSourceName" , $eventXML.Event.System.ChildNodes[0].EventSourceName )
+                $System.add( "Provider_Name" , $eventXML.Event.System.Provider.Name )
+                $System.add( "Guid" , $eventXML.Event.System.Provider.Guid )
+                if ( $eventXML.Event.System.Provider.EventSourceName ) {
+                    $System.add( "EventSourceName" , $eventXML.Event.System.Provider.EventSourceName )
                 }
 
                 for ($i=1; $i -lt $eventXML.Event.System.ChildNodes.Count; $i++) {
@@ -285,6 +285,12 @@ function Evtx-Filter {
                                         if ( $eventXML.Event.System.Security.UserID ) {
                                             $System.add( "UserID" , $eventXML.Event.System.Security.UserID )
                                         }
+                                        break
+                                        }
+                        "EventID"    {
+										if ( $eventXML.Event.System.EventID.'#attributes'.Qualifiers ) {
+											$System.add( "Qualifiers" , $eventXML.Event.System.EventID.'#attributes'.Qualifiers )
+										}
                                         break
                                         }
                         default       {
