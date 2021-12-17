@@ -288,6 +288,7 @@ function Evtx-Filter {
                                         break
                                         }
                         "EventID"    {
+                                        $System.add( "EventID" , $eventXML.Event.System.EventID )
 										if ( $eventXML.Event.System.EventID.'#attributes'.Qualifiers ) {
 											$System.add( "Qualifiers" , $eventXML.Event.System.EventID.'#attributes'.Qualifiers )
 										}
@@ -317,7 +318,7 @@ function Evtx-Filter {
 
                 if ( $PSBoundParameters.ContainsKey('ConvertToSigma') ) {
 
-                    $Result = [String]"title: " + $System.Provider + " EventID " + $System.EventID + "`r`n"
+                    $Result = [String]"title: " + $System.Provider_Name + " EventID " + $System.EventID + "`r`n"
                     $Result += "id: " + (New-Guid).Guid + "`r`n"
                     if ( $PSBoundParameters.ContainsKey('Description') ) {
                         $Result += "description: " + $Description + "`r`n"
@@ -338,19 +339,19 @@ function Evtx-Filter {
                     If ( $System.Channel ) {
                         $Result += "    service: " + $System.Channel.ToLower() + "`r`n"
                     } else {
-                        $Result += "    service: " + $System.Provider + "`r`n"
+                        $Result += "    service: " + $System.Provider_Name + "`r`n"
                     }
                     $Result += "detection:" + "`r`n"
                     $Result += "    selection:" + "`r`n"
                     foreach ( $Data in $System.Keys ) {
-                            $Result += "        $Data|contains: " + $System.$Data + "`r`n"
+                            $Result += "        " + $Data + ": " + $System.$Data + "`r`n"
                     }
 
                     $Result += "    filter:" + "`r`n"
 
                     foreach ( $Data in $(Get-Variable "$LogType" -ValueOnly).Keys ) {
 
-                        if ( ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne $null ) -or ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "NULL" ) -or ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "null" ) -or ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "Null" ) ) {
+                        if ( ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne $null ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "NULL" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "null" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "Null" ) ) {
                             # Add your selection of Keys here
                             if ( (($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")).Count -eq 1 ) {
 
@@ -366,8 +367,12 @@ function Evtx-Filter {
                                     }
 
                                 } else {
-
-                                    $Result += "        $Data|contains: " + $(Get-Variable "$LogType" -ValueOnly).$Data + "`r`n"
+                                    
+                                    if ( $Data -eq "Provider_Name" ) {
+                                        $Result += "        LogName: " + $(Get-Variable "$LogType" -ValueOnly).$Data + "`r`n"
+                                    } else {
+                                        $Result += "        " + $Data + ": " + $(Get-Variable "$LogType" -ValueOnly).$Data + "`r`n"
+                                    }
 
                                 }
 
