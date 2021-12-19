@@ -99,22 +99,18 @@ function Evtx-Filter {
         [String] $Description,
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
-        [String] $OutDir
+        [String] $OutDir,
+        [ValidatePattern("[0-9]{1,2}[smhdM]")]
+        [String] $TimeFrame
     )
-
-
-    if ( $PSBoundParameters.ContainsKey('OnlyOne') ) {
-        $Command = "Get-WinEvent -MaxEvent 1"
-    } else {
-        $Command = "Get-WinEvent"
-    }
 
 
     if ( $PSBoundParameters.ContainsKey('ListLog') ) {
 
         Write-Host "[+] Listing computer eventLogs"
         Get-WinEvent -ListLog * | Select-Object RecordCount,LogName
-    
+        break
+            
     }
 
 
@@ -123,8 +119,7 @@ function Evtx-Filter {
         if ( Test-Path "$LogPath" ) {
 
             Write-Host "[+] Searching EventLog : $LogPath"
-            $query = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>*</Select>`r`n  </Query>`r`n</QueryList>`r`n"
-            $Request = $Command+' -FilterXml "$query" -ErrorAction SilentlyContinue'
+            $XmlQuery = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>`r`n"
 
         } else {
 
@@ -144,9 +139,8 @@ function Evtx-Filter {
         if ( $LogName.Length -ne 0 ) {
 
             Write-Host "[+] Searching EventLog : $LogSearch"
-            $query = "<QueryList>`r`n  <Query Id='0' Path='$LogSearch'>`r`n    <Select Path='$LogSearch'>*</Select>`r`n  </Query>`r`n</QueryList>`r`n"
-            $Request = $Command+' -FilterXml "$query" -ErrorAction SilentlyContinue'
-
+            $XmlQuery = "<QueryList>`<Query Id='0' Path='$LogSearch'> <Select Path='$LogSearch'> "
+    
         } else {
 
             Write-Host "[x] No EventLog found with name : $LogSearch"
@@ -205,40 +199,67 @@ function Evtx-Filter {
     if ( $PSBoundParameters.ContainsKey('EventId') ) {
 
         Write-Host "[+] Searching EventId  : $EventId"
+        $EventIdQuery = "*[System[EventID=$EventId]]"
 
-        if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('FieldValue') ) {
+    }
 
-            Write-Host "[+] Searching Field    : $Field=$FieldValue"
 
-            if ( $PSBoundParameters.ContainsKey('LogSearch') ) {
-                $query = "<QueryList>`r`n  <Query Id='0' Path='$LogSearch'>`r`n    <Select Path='$LogSearch'>`r`n    *[System[(EventID=$EventId)] and EventData[Data[@Name='$Field']='$FieldValue']] or *[System[(EventID=$EventId)] and System[($Field='$FieldValue')]]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
-            }
+    if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('FieldValue') ) {
 
-            if ( $PSBoundParameters.ContainsKey('LogPath') ) {
-                $query = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>`r`n    *[System[(EventID=$EventId)] and EventData[Data[@Name='$Field']='$FieldValue']] or *[System[(EventID=$EventId)] and System[($Field='$FieldValue')]]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
-            }
+        Write-Host "[+] Searching Field    : $Field=$FieldValue"
+        $EventIdFieldQuery = "*[System[EventID=$EventId] and EventData[Data[@Name='$Field']='$FieldValue']] or *[System[(EventID=$EventId)] and System[($Field='$FieldValue')]]"
 
-        } else {
-                
-            if ( $PSBoundParameters.ContainsKey('LogSearch') ) {
-                $query = "<QueryList>`r`n  <Query Id='0' Path='$LogSearch'>`r`n    <Select Path='$LogSearch'>`r`n    *[System[(EventID=$EventId)] ]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
-            }
+    }
 
-            if ( $PSBoundParameters.ContainsKey('LogPath') ) {
-                $query = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>`r`n    *[System[(EventID=$EventId)] ]`r`n    </Select>`r`n  </Query>`r`n</QueryList>`r`n"
-            }
-              
-        }
 
-        $Request = $Command+' -FilterXml "$query" -ErrorAction SilentlyContinue'
 
+    if ( $PSBoundParameters.ContainsKey('TimeFrame') ) {
+        Write-Host "[+] Limiting search on TimeFrame : $TimeFrame"
+        if ( $TimeFrame.Contains("s") ) { $Number = $TimeFrame.Split("s"); $seconde = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddSeconds(-$seconde).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
+        if ( $TimeFrame.Contains("m") ) { $Number = $TimeFrame.Split("m"); $minute = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddMinutes(-$minute).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
+        if ( $TimeFrame.Contains("h") ) { $Number = $TimeFrame.Split("h"); $hour = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddHours(-$hour).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
+        if ( $TimeFrame.Contains("d") ) { $Number = $TimeFrame.Split("d"); $jour = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddDays(-$jour).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
+        if ( $TimeFrame.Contains("M") ) { $Number = $TimeFrame.Split("M"); $month = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddMonths(-$month).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
+        Write-Host "[+] Search begin : "$Begin
+        $End = (Get-Date).AddHours(-1).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+        Write-Host "[+] Search end   : "$End
+        $TimeFrameQuery = "*[System[TimeCreated[@SystemTime&gt;='$Begin' and @SystemTime&lt;='$End']]]"
     }
 
     
     If ( -not $PSBoundParameters.ContainsKey('ListEventId') -and -not $PSBoundParameters.ContainsKey('ListLog') ) {
 
-        Write-Host "[+] XPath query :"
-        Write-Host $query
+        if ( $EventIdQuery -and $EventIdFieldQuery -and $TimeFrameQuery ) {
+            $XmlQuery = $EventIdQuery + " and " + $EventIdFieldQuery + " and " + $TimeFrameQuery
+        } else {
+            if ( $EventIdQuery -and $EventIdFieldQuery ) {
+                $XmlQuery += $EventIdQuery + " and " + $EventIdFieldQuery
+            }
+            if ( $EventIdQuery -and $TimeFrameQuery ) {
+                $XmlQuery += $EventIdQuery + " and " + $TimeFrameQuery
+            }
+            if ( $EventIdFieldQuery -and $TimeFrameQuery ) {
+                $XmlQuery += $EventIdFieldQuery + " and " + $TimeFrameQuery
+            }
+            if ( $EventIdQuery -and -not $EventIdFieldQuery -and -not $TimeFrameQuery ) {
+                if ( -not $XmlQuery ) {
+                    $XmlQuery = "*"
+                } else {
+                    $XmlQuery += $EventIdQuery
+                }
+            }
+        }
+
+        $XmlQuery += " </Select> </Query> </QueryList>"
+
+        Write-Host "[+] XPath query :"$XmlQuery
+
+        if ( $PSBoundParameters.ContainsKey('OnlyOne') ) {
+            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -MaxEvent 1 -ErrorAction SilentlyContinue'
+        } else {
+            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -ErrorAction SilentlyContinue'
+        }
+        
         Write-Host "[+] Launching XPath REQUEST : "$Request
 
         $Events = Invoke-Expression $Request
@@ -446,7 +467,10 @@ function Evtx-Filter {
 
                     } else {
 
-                        $System + $EventData | ConvertTo-Json
+                        Write-Host "System :"
+                        $System | ConvertTo-Json
+                        Write-Host "EventData :"
+                        $EventData | ConvertTo-Json
                         
                     }
         
