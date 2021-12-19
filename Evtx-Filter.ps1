@@ -207,7 +207,7 @@ function Evtx-Filter {
     if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('FieldValue') ) {
 
         Write-Host "[+] Searching Field    : $Field=$FieldValue"
-        $EventIdFieldQuery = "*[System[EventID=$EventId] and EventData[Data[@Name='$Field']='$FieldValue']] or *[System[(EventID=$EventId)] and System[($Field='$FieldValue')]]"
+        $FieldQuery = "*[EventData[Data[@Name='$Field']='$FieldValue']] or *[System[($Field='$FieldValue')]]"
 
     }
 
@@ -229,19 +229,19 @@ function Evtx-Filter {
     
     If ( -not $PSBoundParameters.ContainsKey('ListEventId') -and -not $PSBoundParameters.ContainsKey('ListLog') ) {
 
-        if ( $EventIdQuery -and $EventIdFieldQuery -and $TimeFrameQuery ) {
-            $XmlQuery = $EventIdQuery + " and " + $EventIdFieldQuery + " and " + $TimeFrameQuery
+        if ( $EventIdQuery -and $FieldQuery -and $TimeFrameQuery ) {
+            $XmlQuery += $EventIdQuery + " and " + $FieldQuery + " and " + $TimeFrameQuery
         } else {
-            if ( $EventIdQuery -and $EventIdFieldQuery ) {
-                $XmlQuery += $EventIdQuery + " and " + $EventIdFieldQuery
+            if ( $EventIdQuery -and $FieldQuery ) {
+                $XmlQuery += $EventIdQuery + " and " + $FieldQuery
             }
             if ( $EventIdQuery -and $TimeFrameQuery ) {
                 $XmlQuery += $EventIdQuery + " and " + $TimeFrameQuery
             }
-            if ( $EventIdFieldQuery -and $TimeFrameQuery ) {
-                $XmlQuery += $EventIdFieldQuery + " and " + $TimeFrameQuery
+            if ( $FieldQuery -and $TimeFrameQuery ) {
+                $XmlQuery += $FieldQuery + " and " + $TimeFrameQuery
             }
-            if ( $EventIdQuery -and -not $EventIdFieldQuery -and -not $TimeFrameQuery ) {
+            if ( $EventIdQuery -and -not $FieldQuery -and -not $TimeFrameQuery ) {
                 if ( -not $XmlQuery ) {
                     $XmlQuery = "*"
                 } else {
