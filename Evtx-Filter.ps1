@@ -1,62 +1,72 @@
 <#
-## .SYNOPSIS
+.SYNOPSIS
 
 Search script for easy Evtx lookup and SIGMA rule generation.
 
-## .DESCRIPTION
+.DESCRIPTION
 With this script you will be able to get informations from evtx files.
 You can query a Log for a single or more EventId(s).
 You can list all EventIds from a specific Log.
 You can search for an EventId and a specific value for another field.
 You can generate a SIGMA rule from your search.
 
-### .PARAMETER ListLog
+.PARAMETER ListLog
 Switch to list all logs available on the system.
 Result : gives RecordCount per LogName
 
-### .PARAMETER LogSearch
+.PARAMETER LogSearch
 Gives the scope of the search. Must be a valid Logname.
 Defaults to the Security log.
 
-### .INPUTS
+.INPUTS
 None. You cannot pipe objects to Add-Extension.
 
-### .OUTPUTS
+.OUTPUTS
 Screen output or file output as json or sigma rule.
 
-### .EXAMPLE
+.EXAMPLE
 List all Logs with corresponding number of events.
 PS> Evtx-Filter -ListLog
 
-### .EXAMPLE
+.EXAMPLE
 Get the EventId list from Events in the current  `Application` log.
 PS> Evtx-Filter -LogSearch Application -ListEventId
 
-### .EXAMPLE
+.EXAMPLE
 Search `Security` log and shows all the events corresponding to selected EventId.
 PS> Evtx-Filter -LogSearch 'Security' -EventId 4627
 
-### .EXAMPLE
+.EXAMPLE
 Search `Security` log and shows all the events corresponding to selected **EventId** that match a specific **Field** and a specific **FieldValue**.
 PS> Evtx-Filter -LogSearch 'Security' -EventId 4627 -Field 'LogonType' -FieldValue 2
 
-### .EXAMPLE
+.EXAMPLE
 Search `Security` log and shows **only one** event corresponding to selected **EventId**.
 PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -OnlyOne
 
-### .EXAMPLE
+.EXAMPLE
 Search `Security` log for an event corresponding to selected **EventId** and shows **only one** event as **a SIGMA rule**.
 PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -OnlyOne -ConvertToSigma
 
-### .EXAMPLE
+.EXAMPLE
 Search `Security` log for an event corresponding to selected **EventId** and outputs **only one** event as **a SIGMA rule** writen in the **OutDir** `./results/`.
 PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -OnlyOne -ConvertToSigma -OutDir ./results/
 
-### .EXAMPLE
+.EXAMPLE
 Search `Security` log for all events corresponding to selected **EventId** and outputs **all events** as **SIGMA rules** writen in the **OutDir** `./results/`.
 PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -ConvertToSigma -OutDir ./results/
 
-### .LINK
+.EXAMPLE
+Search `Security` log for all events corresponding to the last **30 minutes TimeFrame**.
+PS> Evtx-Filter -LogSearch 'Security' -TimeFrame 30m 
+
+Possible values exemples : 15s / 30m / 12h / 7d / 3M
+
+.EXAMPLE
+Search `Security` log for all events corresponding to the specified **Period** between **-Begin** datetime and **-End** datetime.
+Evtx-Filter -LogSearch Security -Period -Begin  "2021-12-20T10:00:00.000" -End  "2021-12-20T11:00:00.000"
+
+.LINK
 Online version: https://www.github.com/croko-fr/Evtx2Sigma
 
 #>
@@ -80,7 +90,7 @@ function Evtx-Filter {
         [Switch] $ListEventId,
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
-        [Int] $EventId,
+        [String] $EventId,
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
         [String] $Field,
@@ -96,12 +106,22 @@ function Evtx-Filter {
         [Switch] $ConvertToSigma,
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
-        [String] $Description,
-        [Parameter( ParameterSetName="LogSearch" )]
-        [Parameter( ParameterSetName="LogPath" )]
         [String] $OutDir,
         [ValidatePattern("[0-9]{1,2}[smhdM]")]
-        [String] $TimeFrame
+        [String] $TimeFrame,
+        [Parameter( ParameterSetName="LogSearch" )]
+        [Parameter( ParameterSetName="LogPath" )]
+        [Switch] $Period,
+        [Parameter( ParameterSetName="LogSearch" )]
+        [Parameter( ParameterSetName="LogPath" )]
+        [ValidatePattern("[0-9-:TZ]{1,}")]
+        [String] $Begin,
+        [Parameter( ParameterSetName="LogSearch" )]
+        [Parameter( ParameterSetName="LogPath" )]
+        [Parameter( ParameterSetName="Period" )]
+        [ValidatePattern("[0-9-:TZ]{1,}")]
+        [String] $End,
+        [String] $CatalogFile = "EventId_List_Full_sort_uniq.txt"
     )
 
 
@@ -120,6 +140,7 @@ function Evtx-Filter {
 
             Write-Host "[+] Searching EventLog : $LogPath"
             $XmlQuery = "<QueryList> <Query Id='0' Path='file://$LogPath'> <Select Path='file://$LogPath'> "
+            $Request = "Get-WinEvent -Path '$LogPath'"
 
         } else {
 
@@ -129,7 +150,7 @@ function Evtx-Filter {
         }
 
     }
-    	
+
 
     if ( $PSBoundParameters.ContainsKey('LogSearch') ) {
 
@@ -140,6 +161,7 @@ function Evtx-Filter {
 
             Write-Host "[+] Searching EventLog : $LogSearch"
             $XmlQuery = "<QueryList>`<Query Id='0' Path='$LogSearch'> <Select Path='$LogSearch'> "
+            $Request = "Get-WinEvent -LogName $LogSearch"
     
         } else {
 
@@ -154,7 +176,7 @@ function Evtx-Filter {
     if ( $PSBoundParameters.ContainsKey('RawSearch') ) {
 
         Write-Host "[+] Searching with Raw keyword : '$RawSearch'"
-        $match = Invoke-Expression $Request | Where-Object -Property Message -Match '$RawSearch'
+        $match = Invoke-Expression $Request | Where-Object -Property Message -Match '$RawSearch' | Sort-Object -Descending
         if ( $match.count -ne 0 ) {
             Write-Host "[+] Match found :"
             $match
@@ -199,7 +221,15 @@ function Evtx-Filter {
     if ( $PSBoundParameters.ContainsKey('EventId') ) {
 
         Write-Host "[+] Searching EventId  : $EventId"
-        $EventIdQuery = "*[System[EventID=$EventId]]"
+        if ( $Ids = $EventId.split(",") ) {
+            $EventIdQuery = "*[System[EventID=" + $Ids[0]
+            for ($i=1; $i -lt $Ids.Count; $i++) {
+                $EventIdQuery += " or EventID=" + $Ids[$i]
+            }
+            $EventIdQuery += "]]"
+        } else {
+            $EventIdQuery = "*[System[EventID=$EventId]]"
+        }
 
     }
 
@@ -222,6 +252,18 @@ function Evtx-Filter {
         if ( $TimeFrame.Contains("M") ) { $Number = $TimeFrame.Split("M"); $month = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddMonths(-$month).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
         Write-Host "[+] Search begin : "$Begin
         $End = (Get-Date).AddHours(-1).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+        Write-Host "[+] Search end   : "$End
+        $TimeFrameQuery = "*[System[TimeCreated[@SystemTime&gt;='$Begin' and @SystemTime&lt;='$End']]]"
+    }
+
+
+    if ( $PSBoundParameters.ContainsKey('Period') ) {
+        Write-Host "[+] Limiting search on Period :"
+        Try { Get-Date -Date "$Begin" | Out-Null } Catch { Write-Host -ForegroundColor Red "[x] Period : BEGIN date is not valid."; break }
+        Try { Get-Date -Date "$End" | Out-Null } Catch { Write-Host -ForegroundColor Red "[x] Period : END date is not valid."; break }
+        $Begin = (Get-Date -date "$Begin" ).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+        Write-Host "[+] Search begin : "$Begin
+        $End = (Get-Date -date "$End" ).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
         Write-Host "[+] Search end   : "$End
         $TimeFrameQuery = "*[System[TimeCreated[@SystemTime&gt;='$Begin' and @SystemTime&lt;='$End']]]"
     }
@@ -256,9 +298,9 @@ function Evtx-Filter {
         Write-Host "[+] XPath query :"$XmlQuery
 
         if ( $PSBoundParameters.ContainsKey('OnlyOne') ) {
-            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -MaxEvent 1 -ErrorAction SilentlyContinue'
+            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -MaxEvent 1 -ErrorAction SilentlyContinue | Sort-Object -Descending'
         } else {
-            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -ErrorAction SilentlyContinue'
+            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -ErrorAction SilentlyContinue | Sort-Object -Descending'
         }
         
         Write-Host "[+] Launching XPath REQUEST : "$Request
@@ -271,13 +313,15 @@ function Evtx-Filter {
 
         } else {
 
-            # TODO : Enqueter sur Options / NetworkAddress 
+            Write-Host "[+]"$Events.Count" matching event found."
+
             ForEach ( $Event in $Events ) {
 
                 $eventXML = [xml]$Event.ToXml()
                 $System = @{}
                 $UserData = @{}
                 $EventData = @{}
+                $LogType = ""
 
                 $System.add( "Provider_Name" , $eventXML.Event.System.Provider.Name )
                 $System.add( "Guid" , $eventXML.Event.System.Provider.Guid )
@@ -311,9 +355,9 @@ function Evtx-Filter {
                                         }
                         "EventID"    {
                                         $System.add( "EventID" , $eventXML.Event.System.EventID )
-										if ( $eventXML.Event.System.EventID.'#attributes'.Qualifiers ) {
-											$System.add( "Qualifiers" , $eventXML.Event.System.EventID.'#attributes'.Qualifiers )
-										}
+                                        if ( $eventXML.Event.System.EventID.'#attributes'.Qualifiers ) {
+                                            $System.add( "Qualifiers" , $eventXML.Event.System.EventID.'#attributes'.Qualifiers )
+                                        }
                                         break
                                         }
                         default       {
@@ -338,15 +382,23 @@ function Evtx-Filter {
                     }
                 }
 
-                if ( $PSBoundParameters.ContainsKey('ConvertToSigma') ) {
+                if ( $PSBoundParameters.ContainsKey('ConvertToSigma') -eq $true ) {
 
                     $Result = [String]"title: " + $System.Provider_Name + " EventID " + $System.EventID + "`r`n"
                     $Result += "id: " + (New-Guid).Guid + "`r`n"
-                    if ( $PSBoundParameters.ContainsKey('Description') ) {
-                        $Result += "description: " + $Description + "`r`n"
+                    # Find description for known EventID
+                    $CatalogFilePath = (Get-Location).Path+"\"+$CatalogFile
+                    if ( Test-Path $CatalogFilePath ) {
+                        $Match = (( gc $CatalogFilePath ) -match ($System.Provider_Name+";"+$System.EventID+";") ) -split ";"
+                        if ( $Match ) {
+                            $Description = $Match[2]
+                        } else {
+                            $Description = $System.Provider_Name
+                        }
                     } else {
-                        $Result += "description: " + $System.Provider + "`r`n"
+                        $Description = $System.Provider_Name
                     }
+                    $Result += "description: " + $Description + "`r`n"
                     $Result += "references:" + "`r`n"
                     $Result += "    - https://www.awesome-security-blog.com/vulns/cve-2021-xxxxx" + "`r`n"
                     $Result += "tags:" + "`r`n"
@@ -369,83 +421,93 @@ function Evtx-Filter {
                             $Result += "        " + $Data + ": " + $System.$Data + "`r`n"
                     }
 
-                    $Result += "    filter:" + "`r`n"
+                    if ( ( $LogType -eq "EventData" ) -or ( $LogType -eq "UserData" ) ) {
+					
+                        $Result += "    filter:" + "`r`n"
 
-                    foreach ( $Data in $(Get-Variable "$LogType" -ValueOnly).Keys ) {
-
-                        if ( ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne $null ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "NULL" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "null" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "Null" ) ) {
-                            # Add your selection of Keys here
-                            if ( (($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")).Count -eq 1 ) {
-
-                                if ( ($(Get-Variable "$LogType" -ValueOnly).$Data).Contains(",") ) {
-
+                        foreach ( $Data in $(Get-Variable "$LogType" -ValueOnly).Keys ) {
+    
+                            if ( ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne $null ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "NULL" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "null" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "Null" ) ) {
+                                # Add your selection of Keys here
+                                if ( (($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")).Count -eq 1 ) {
+    
+                                    if ( ($(Get-Variable "$LogType" -ValueOnly).$Data).Contains(",") ) {
+    
+                                        $Result += "        $Data|contains:`r`n"
+    
+                                        $MultiLine = ($(Get-Variable "$LogType" -ValueOnly).$Data).Split(",")
+                                        foreach ( $line in $MultiLine ) {
+                                            if ( $line -ne "" ) {
+                                                $Result += "            - " + $line.trim() + "`r`n"
+                                            }
+                                        }
+    
+                                    } else {
+                                        
+                                        if ( $Data -eq "Provider_Name" ) {
+                                            $Result += "        LogName: " + $(Get-Variable "$LogType" -ValueOnly).$Data + "`r`n"
+                                        } else {
+                                            $Result += "        " + $Data + ": " + $(Get-Variable "$LogType" -ValueOnly).$Data + "`r`n"
+                                        }
+    
+                                    }
+    
+                                } else {
+    
                                     $Result += "        $Data|contains:`r`n"
-
-                                    $MultiLine = ($(Get-Variable "$LogType" -ValueOnly).$Data).Split(",")
+    
+                                    $MultiLine = ($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")
                                     foreach ( $line in $MultiLine ) {
                                         if ( $line -ne "" ) {
                                             $Result += "            - " + $line.trim() + "`r`n"
                                         }
                                     }
-
-                                } else {
-                                    
-                                    if ( $Data -eq "Provider_Name" ) {
-                                        $Result += "        LogName: " + $(Get-Variable "$LogType" -ValueOnly).$Data + "`r`n"
-                                    } else {
-                                        $Result += "        " + $Data + ": " + $(Get-Variable "$LogType" -ValueOnly).$Data + "`r`n"
-                                    }
-
+    
                                 }
-
-                            } else {
-
-                                $Result += "        $Data|contains:`r`n"
-
-                                $MultiLine = ($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")
-                                foreach ( $line in $MultiLine ) {
-                                    if ( $line -ne "" ) {
-                                        $Result += "            - " + $line.trim() + "`r`n"
-                                    }
-                                }
-
                             }
+    
                         }
 
                     }
 
                     $Result += "    timeframe: 15s / 30m / 12h / 7d / 3M" + "`r`n"
-                    $Result += "    condition: selection and filter" + "`r`n"
+                    if ( ( $LogType -eq "EventData" ) -or ( $LogType -eq "UserData" ) ) {
+                        $Result += "    condition: selection and filter" + "`r`n"
+                    } else {
+                        $Result += "    condition: selection" + "`r`n"
+                    }
                     $Result += "fields:" + "`r`n"
                     foreach ( $SysData in $System.Keys ) {
                         $Result += "    - " + $SysData + "`r`n"
                     }
-                    foreach ( $Data in $(Get-Variable "$LogType" -ValueOnly).Keys ) {
-                        $Result += "    - " + $Data + "`r`n"
+                    if ( ( $LogType -eq "EventData" ) -or ( $LogType -eq "UserData" ) ) {
+                        foreach ( $Data in $(Get-Variable "$LogType" -ValueOnly).Keys ) {
+                            $Result += "    - " + $Data + "`r`n"
+                        }
                     }
                     $Result += "falsepositives:" + "`r`n"
                     $Result += "    - Explain what could be falsepositives / None" + "`r`n"
                     $Result += "level: informational / low / medium / high / critical" + "`r`n"
-                }
 
+                }
 
                 if ( $PSBoundParameters.ContainsKey('OutDir') ) {
         
                     if ( !(Test-Path $OutDir) ) {
 
                         Write-Host "[+] Creating output directory : $OutDir"
-                        New-Item -Path $OutDir -type directory -Force 
+                        New-Item -Path $OutDir -type directory -Force | Out-Null
 
                     }
 
                     If ( $PSBoundParameters.ContainsKey('OnlyOne') ) { 
 
-                        $FileName = $OutDir+"\Windows_EventLog_"+$System.EventId
+                        $FileName = $OutDir+"\Windows_EventLog_"+$System.Provider_Name+"_"+$System.EventId+"_"+($Description.Replace(".","")).Replace(" ","_")
 
                     } Else {
-                    
-                        $FileName = $OutDir+"\Windows_EventLog_"+$System.EventId+"_"+$System.EventRecordID
-                                            
+
+                        $FileName = $OutDir+"\Windows_EventLog_"+$System.Provider_Name+"_"+$System.EventId+"_"+($Description.Replace(".","")).Replace(" ","_")+"_"+$System.EventRecordID
+
                     }
 
                     If ( $PSBoundParameters.ContainsKey('ConvertToSigma') ) {
@@ -455,8 +517,9 @@ function Evtx-Filter {
 
                     } Else {
                     
-                        Write-Host "[+] Writing SIGMA rule : $Filename.json"
-                        Set-Content -Path $Filename".json" -Value ($System + $EventData | ConvertTo-Json)
+                        Write-Host "[+] Writing Json file : $Filename.json"
+                        Set-Content -Path $Filename".json" -Value ( $System | ConvertTo-Json )
+                        Add-Content -Path $Filename".json" -Value ( $EventData | ConvertTo-Json )
 
                     }
 
