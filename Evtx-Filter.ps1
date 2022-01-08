@@ -119,7 +119,7 @@ function Evtx-Filter {
         if ( Test-Path "$LogPath" ) {
 
             Write-Host "[+] Searching EventLog : $LogPath"
-            $XmlQuery = "<QueryList>`r`n  <Query Id='0' Path='file://$LogPath'>`r`n    <Select Path='file://$LogPath'>`r`n"
+            $XmlQuery = "<QueryList> <Query Id='0' Path='file://$LogPath'> <Select Path='file://$LogPath'> "
 
         } else {
 
@@ -232,20 +232,21 @@ function Evtx-Filter {
         if ( $EventIdQuery -and $FieldQuery -and $TimeFrameQuery ) {
             $XmlQuery += $EventIdQuery + " and " + $FieldQuery + " and " + $TimeFrameQuery
         } else {
-            if ( $EventIdQuery -and $FieldQuery ) {
-                $XmlQuery += $EventIdQuery + " and " + $FieldQuery
-            }
-            if ( $EventIdQuery -and $TimeFrameQuery ) {
-                $XmlQuery += $EventIdQuery + " and " + $TimeFrameQuery
-            }
-            if ( $FieldQuery -and $TimeFrameQuery ) {
-                $XmlQuery += $FieldQuery + " and " + $TimeFrameQuery
-            }
-            if ( $EventIdQuery -and -not $FieldQuery -and -not $TimeFrameQuery ) {
-                if ( -not $XmlQuery ) {
-                    $XmlQuery = "*"
+            if ( $EventIdQuery ) {
+                $XmlQuery += $EventIdQuery
+                if ( $FieldQuery ) {
+                    $XmlQuery += " and " + $FieldQuery
+                }
+                if ( $TimeFrameQuery ) {
+                    $XmlQuery += " and " + $TimeFrameQuery
+                }
+            } else {
+                if ( $FieldQuery -and $TimeFrameQuery ) {
+                    $XmlQuery += $FieldQuery + " and " + $TimeFrameQuery
                 } else {
-                    $XmlQuery += $EventIdQuery
+                    if ( $FieldQuery ) { $XmlQuery += $FieldQuery }
+                    if ( $TimeFrameQuery ) { $XmlQuery += $TimeFrameQuery }
+                    if ( -not $FieldQuery -and -not $TimeFrameQuery ) { $XmlQuery += "*" }
                 }
             }
         }
