@@ -576,6 +576,94 @@ function Evtx-Filter {
 
 							}
 
+							if ( ( $LogSearch -eq "Sysmon" ) -or ( $LogPath -match "Sysmon" ) ){
+
+								# Process Create
+								if ( $System.EventID -eq 1 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.User+";"+$EventData.ProcessId+";"+$EventData.CommandLine+";"+$EventData.ParentProcessId+";"+$EventData.ParentCommandLine+";"+$EventData.Image+";")
+
+								}
+
+								# File creation time changed
+								if ( $System.EventID -eq 2 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.CreationUtcTime+";"+$EventData.PreviousCreationUtcTime)
+
+								}
+
+								# Network connection detected
+								if ( $System.EventID -eq 3 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.Protocol+";"+$EventData.SourceIp+";"+$EventData.SourcePort+";"+$EventData.DestinationIp+";"+$EventData.DestinationPort)
+
+								}
+
+								# Sysmon service state changed
+								if ( $System.EventID -eq 4 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.State+";"+$EventData.SchemaVersion+";"+$EventData.Version)
+
+								}
+
+								# Process terminated
+								if ( $System.EventID -eq 5 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.ProcessGuid+";"+$EventData.RuleName)
+
+								}
+
+								# Driver loaded
+								if ( $System.EventID -eq 6 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.ImageLoaded+";"+$EventData.Signature+";"+$EventData.SignatureStatus+";"+$EventData.Signed+";"+$EventData.Hashes)
+
+								}
+
+								# CreateRemoteThread detected
+								if ( $System.EventID -eq 8 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SourceProcessId+";"+$EventData.SourceImage+";"+$EventData.TargetProcessId+";"+$EventData.TargetImage+";"+$EventData.NewThreadId+";"+$EventData.StartAddress+";"+$EventData.StartModule+";"+$EventData.StartFunction)
+
+								}
+
+								# File created
+								if ( $System.EventID -eq 11 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.CreationUtcTime)
+
+								}
+
+								# Registry object added or deleted
+								if ( $System.EventID -eq 12 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.TargetObject+";"+$EventData.RuleName)
+
+								}
+
+								# Registry value set
+								if ( $System.EventID -eq 13 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.TargetObject+";"+$EventData.Details)
+
+								}
+
+								# Sysmon config state changed
+								if ( $System.EventID -eq 16 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.Configuration+";"+$EventData.ConfigurationFileHash+";"+$EventData.UtcTime)
+
+								}
+
+								# Dns query
+								if ( $System.EventID -eq 22 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$System.ThreadID+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.QueryName+";"+$EventData.QueryResults+";"+$EventData.QueryStatus)
+
+								}
+
+							}
+
 						} else {
 
 							Write-Host "System :"
