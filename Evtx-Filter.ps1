@@ -121,7 +121,10 @@ function Evtx-Filter {
         [Parameter( ParameterSetName="Period" )]
         [ValidatePattern("[0-9-:TZ]{1,}")]
         [String] $End,
-        [String] $CatalogFile = "EventId_List_Full_sort_uniq.txt"
+        [String] $CatalogFile = "EventId_List_Full_sort_uniq.txt",
+        [Parameter( ParameterSetName="LogSearch" )]
+        [Parameter( ParameterSetName="LogPath" )]
+        [Switch] $ConvertToTimeLine = $false
     )
 
 
@@ -531,11 +534,57 @@ function Evtx-Filter {
 
                     } else {
 
-                        Write-Host "System :"
-                        $System | ConvertTo-Json
-                        Write-Host "EventData :"
-                        $EventData | ConvertTo-Json
-                        
+						if ( $PSBoundParameters.ContainsKey('ConvertToTimeLine') -eq $true ) {
+
+							if ( ( $LogSearch -eq "Security" ) -or ( $LogPath -match "Security" ) ){
+
+								if ( $System.EventID -eq 4624 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.ProcessName)
+
+								}
+
+								if ( $System.EventID -eq 4625 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.ProcessName)
+
+								}
+
+								if ( $System.EventID -eq 4688 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+";"+$EventData.ParentProcessName+";"+$EventData.NewProcessName)
+
+								}
+
+								if ( $System.EventID -eq 4689 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+";"+$EventData.ProcessName)
+
+								}
+
+								if ( $System.EventID -eq 4732 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.MemberSid)
+
+								}
+
+								if ( $System.EventID -eq 4733 ){
+
+									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.MemberSid)
+
+								}
+
+							}
+
+						} else {
+
+							Write-Host "System :"
+							$System | ConvertTo-Json
+							Write-Host "EventData :"
+							$EventData | ConvertTo-Json
+
+						}
+
                     }
         
                 }
