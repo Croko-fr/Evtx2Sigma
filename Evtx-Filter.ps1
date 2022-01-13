@@ -576,7 +576,7 @@ function Evtx-Filter {
 
 							}
 
-							if ( ( $LogSearch -eq "Sysmon" ) -or ( $LogPath -match "Sysmon" ) ){
+							if ( ( $LogSearch -match "Sysmon" ) -or ( $LogPath -match "Sysmon" ) ){
 
 								# Process Create
 								if ( $System.EventID -eq 1 ){
