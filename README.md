@@ -1,6 +1,7 @@
-# Evtx2Sigma
+# Evtx-Filter
 
-Repository to query live or offline Windows eventlogs and output sigma rules
+Repository to query live or offline Windows eventlogs and output sigma rules.
+As we already parse EventLog file you can show a timeline instead.
 
 ## .SYNOPSIS
 
@@ -91,6 +92,32 @@ Search `Security` log for all events corresponding to selected **EventId** and o
 Evtx-Filter -LogSearch 'Security' -EventId 4624 -ConvertToSigma -OutDir ./results/
 ```
 
+### .EXAMPLE
+
+Search `Microsoft-Windows-Sysmon/Operational` log for all events corresponding to the last **30 minutes TimeFrame**.
+
+```powershell
+Evtx-Filter -LogSearch "Microsoft-Windows-Sysmon/Operational" -TimeFrame 30m 
+```
+
+Possible values exemples : 15s / 30m / 12h / 7d / 3M
+
+### EXAMPLE
+
+Search `Microsoft-Windows-Sysmon/Operational` log for all events corresponding to the specified **Period** between **-Begin** datetime and **-End** datetime.
+
+```powershell
+Evtx-Filter -LogSearch "Microsoft-Windows-Sysmon/Operational" -Period -Begin  "2021-12-20T10:00:00.000" -End  "2021-12-20T11:00:00.000"
+```
+
+### .EXAMPLE
+
+Search `Microsoft-Windows-Sysmon/Operational` log for all events corresponding to the last **1 hour** and outputs on screen as a timeline.
+
+```powershell
+Evtx-Filter -LogSearch "Microsoft-Windows-Sysmon/Operational" -TimeFrame 1h -ConvertToTimeLine
+```
+
 ### .LINK
 
 Online version: https://www.github.com/croko-fr/Evtx2Sigma
@@ -100,4 +127,14 @@ Online version: https://www.github.com/croko-fr/Evtx2Sigma
 - [x] Fix Search with Evtx files input
 - [x] Rewrite all search with XPath ( faster )
 - [x] Write all exemples
+- [ ] Add more EventID for Security logs
+- [ ] Add more logs for Timeline
+- [ ] Find a way to handle options better
+- [ ] Find a way to speed the request
+- [ ] Split project in mutliple one ?
+
+### .THANKS
+
+- Florian Roth and Thomas Patzke : for this awesome project --> [SIGMA](https://github.com/SigmaHQ/sigma)
+
 
