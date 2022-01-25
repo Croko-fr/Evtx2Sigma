@@ -542,15 +542,38 @@ function Evtx-Filter {
 
                             if ( ( $LogSearch -eq "Security" ) -or ( $LogPath -match "Security" ) ){
 
-                                if ( $System.EventID -eq 4624 ){
+                                # A trusted logon process has been registered with the Local Security Authority
+                                if ( $System.EventID -eq 4611 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.ProcessName)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.LogonProcessName+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.SubjectUserSid+";"+$EventData.SubjectLogonId)
 
                                 }
 
+                                # An account was successfully logged on
+                                if ( $System.EventID -eq 4624 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.ProcessName)
+
+                                }
+
+                                # An account failed to log on
                                 if ( $System.EventID -eq 4625 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.ProcessName)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.ProcessName)
+
+                                }
+
+                                # An account was logged off
+                                if ( $System.EventID -eq 4634 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.LogonType+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.TargetUserSid+";"+$EventData.TargetLogonId)
+
+                                }
+
+                                # A logon was attempted using explicit credentials
+                                if ( $System.EventID -eq 4648 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.ProcessName+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetServerName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
 
                                 }
 
