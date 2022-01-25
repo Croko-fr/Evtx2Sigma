@@ -183,7 +183,7 @@ function Evtx-Filter {
     if ( $PSBoundParameters.ContainsKey('RawSearch') ) {
 
         Write-Host "[+] Searching with Raw keyword : '$RawSearch'"
-        $match = Invoke-Expression $Request | Where-Object -Property Message -Match '$RawSearch' | Sort-Object -Descending
+        $match = Invoke-Expression $Request | Where-Object -Property Message -Match '$RawSearch' | Sort-Object TimeCreated -Descending
         if ( $match.count -ne 0 ) {
             Write-Host "[+] Match found :"
             $match
@@ -305,9 +305,9 @@ function Evtx-Filter {
         Write-Host "[+] XPath query :"$XmlQuery
 
         if ( $PSBoundParameters.ContainsKey('OnlyOne') ) {
-            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -MaxEvent 1 -ErrorAction SilentlyContinue | Sort-Object -Descending'
+            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -MaxEvent 1 -ErrorAction SilentlyContinue | Sort-Object TimeCreated -Descending'
         } else {
-            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -ErrorAction SilentlyContinue | Sort-Object -Descending'
+            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -ErrorAction SilentlyContinue | Sort-Object TimeCreated -Descending'
         }
         
         Write-Host "[+] Launching XPath REQUEST : "$Request
@@ -429,7 +429,7 @@ function Evtx-Filter {
                     }
 
                     if ( ( $LogType -eq "EventData" ) -or ( $LogType -eq "UserData" ) ) {
-					
+
                         $Result += "    filter:" + "`r`n"
 
                         foreach ( $Data in $(Get-Variable "$LogType" -ValueOnly).Keys ) {
@@ -538,154 +538,251 @@ function Evtx-Filter {
 
                     } else {
 
-						if ( $PSBoundParameters.ContainsKey('ConvertToTimeLine') -eq $true ) {
+                        if ( $PSBoundParameters.ContainsKey('ConvertToTimeLine') -eq $true ) {
 
-							if ( ( $LogSearch -eq "Security" ) -or ( $LogPath -match "Security" ) ){
+                            if ( ( $LogSearch -eq "Security" ) -or ( $LogPath -match "Security" ) ){
 
-								if ( $System.EventID -eq 4624 ){
+                                if ( $System.EventID -eq 4624 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.ProcessName)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.ProcessName)
 
-								}
+                                }
 
-								if ( $System.EventID -eq 4625 ){
+                                if ( $System.EventID -eq 4625 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.ProcessName)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.ProcessName)
 
-								}
+                                }
 
-								if ( $System.EventID -eq 4688 ){
+                                if ( $System.EventID -eq 4688 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+";"+$EventData.ParentProcessName+";"+$EventData.NewProcessName)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+";"+$EventData.ParentProcessName+";"+$EventData.NewProcessName)
 
-								}
+                                }
 
-								if ( $System.EventID -eq 4689 ){
+                                if ( $System.EventID -eq 4689 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+";"+$EventData.ProcessName)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+";"+$EventData.ProcessName)
 
-								}
+                                }
 
-								if ( $System.EventID -eq 4732 ){
+                                if ( $System.EventID -eq 4732 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.MemberSid)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.MemberSid)
 
-								}
+                                }
 
-								if ( $System.EventID -eq 4733 ){
+                                if ( $System.EventID -eq 4733 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.MemberSid)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.MemberSid)
 
-								}
+                                }
 
-							}
+                            }
 
-							if ( ( $LogSearch -match "Sysmon" ) -or ( $LogPath -match "Sysmon" ) ){
+                            if ( ( $LogSearch -match "Sysmon" ) -or ( $LogPath -match "Sysmon" ) ){
 
-								# Process Create
-								if ( $System.EventID -eq 1 ){
+                                # Process Create
+                                if ( $System.EventID -eq 1 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.User+";"+$EventData.ProcessId+";"+$EventData.CommandLine+";"+$EventData.ParentProcessId+";"+$EventData.ParentCommandLine+";"+$EventData.Image+";")
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Process Create;"+$EventData.ParentProcessId+";"+$EventData.ParentUser+";"+$EventData.ParentCommandLine+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.CommandLine)
 
-								}
+                                }
 
-								# File creation time changed
-								if ( $System.EventID -eq 2 ){
+                                # File creation time changed
+                                if ( $System.EventID -eq 2 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.CreationUtcTime+";"+$EventData.PreviousCreationUtcTime)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";File creation time changed;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.CreationUtcTime+";"+$EventData.PreviousCreationUtcTime)
 
-								}
+                                }
 
-								# Network connection detected
-								if ( $System.EventID -eq 3 ){
+                                # Network connection detected
+                                if ( $System.EventID -eq 3 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.Protocol+";"+$EventData.SourceIp+";"+$EventData.SourcePort+";"+$EventData.DestinationIp+";"+$EventData.DestinationPort)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Network connection detected;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.Protocol+";"+$EventData.SourceIp+";"+$EventData.SourcePort+";"+$EventData.DestinationIp+";"+$EventData.DestinationPort)
 
-								}
+                                }
 
-								# Sysmon service state changed
-								if ( $System.EventID -eq 4 ){
+                                # Sysmon service state changed
+                                if ( $System.EventID -eq 4 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.State+";"+$EventData.SchemaVersion+";"+$EventData.Version)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Sysmon service state changed;"+$EventData.State+";"+$EventData.SchemaVersion+";"+$EventData.Version)
 
-								}
+                                }
 
-								# Process terminated
-								if ( $System.EventID -eq 5 ){
+                                # Process terminated
+                                if ( $System.EventID -eq 5 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.ProcessGuid+";"+$EventData.RuleName)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Process terminated;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image)
 
-								}
+                                }
 
-								# Driver loaded
-								if ( $System.EventID -eq 6 ){
+                                # Driver loaded into kernel
+                                if ( $System.EventID -eq 6 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.ImageLoaded+";"+$EventData.Signature+";"+$EventData.SignatureStatus+";"+$EventData.Signed+";"+$EventData.Hashes)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Driver loaded;"+$EventData.ImageLoaded+";"+$EventData.Signature+";"+$EventData.SignatureStatus+";"+$EventData.Signed+";"+$EventData.Hashes)
 
-								}
+                                }
 
-								# CreateRemoteThread detected
-								if ( $System.EventID -eq 8 ){
+                                # Image loaded
+                                if ( $System.EventID -eq 7 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.SourceProcessId+";"+$EventData.SourceImage+";"+$EventData.TargetProcessId+";"+$EventData.TargetImage+";"+$EventData.NewThreadId+";"+$EventData.StartAddress+";"+$EventData.StartModule+";"+$EventData.StartFunction)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Image loaded;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.ImageLoaded+";"+$EventData.Signature+";"+$EventData.SignatureStatus+";"+$EventData.Signed+";"+$EventData.Hashes)
 
-								}
+                                }
 
-								# File created
-								if ( $System.EventID -eq 11 ){
+                                # CreateRemoteThread detected
+                                if ( $System.EventID -eq 8 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.CreationUtcTime)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";CreateRemoteThread detected;"+$EventData.SourceProcessId+";"+$EventData.SourceUser+";"+$EventData.SourceImage+";"+$EventData.TargetProcessId+";"+$EventData.TargetUser+";"+$EventData.TargetImage+";"+$EventData.NewThreadId+";"+$EventData.StartAddress+";"+$EventData.StartModule+";"+$EventData.StartFunction)
 
-								}
+                                }
 
-								# Registry object added or deleted
-								if ( $System.EventID -eq 12 ){
+                                # RawAccessRead detected
+                                if ( $System.EventID -eq 9 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.TargetObject+";"+$EventData.RuleName)
+                                    #($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";RawAccessRead detected;"+$EventData.SourceProcessId+";"+$EventData.SourceImage+";"+$EventData.TargetProcessId+";"+$EventData.TargetImage+";"+$EventData.NewThreadId+";"+$EventData.StartAddress+";"+$EventData.StartModule+";"+$EventData.StartFunction)
 
-								}
+                                }
 
-								# Registry value set
-								if ( $System.EventID -eq 13 ){
+                                # Process accessed
+                                if ( $System.EventID -eq 10 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.TargetObject+";"+$EventData.Details)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Process accessed;"+$EventData.SourceProcessId+";"+$EventData.SourceUser+";"+$EventData.SourceImage+";"+$EventData.TargetProcessId+";"+$EventData.TargetUser+";"+$EventData.TargetImage)
 
-								}
+                                }
 
-								# Sysmon config state changed
-								if ( $System.EventID -eq 16 ){
+                                # File created
+                                if ( $System.EventID -eq 11 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$EventData.Configuration+";"+$EventData.ConfigurationFileHash+";"+$EventData.UtcTime)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";File created;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.CreationUtcTime)
 
-								}
+                                }
 
-								# Dns query
-								if ( $System.EventID -eq 22 ){
+                                # RegistryEvent - Registry object added or deleted
+                                if ( $System.EventID -eq 12 ){
 
-									($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$System.ThreadID+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.QueryName+";"+$EventData.QueryResults+";"+$EventData.QueryStatus)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";RegistryEvent;"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetObject)
 
-								}
+                                }
 
-							}
+                                # RegistryEvent - Registry value set
+                                if ( $System.EventID -eq 13 ){
 
-						} else {
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";RegistryEvent;"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetObject+";"+$EventData.Details)
 
-							Write-Host "System :"
-							$System | ConvertTo-Json
-							Write-Host "EventData :"
-							$EventData | ConvertTo-Json
+                                }
 
-						}
+                                # RegistryEvent - Registry object renamed
+                                if ( $System.EventID -eq 14 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";RegistryEvent;"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.TargetObject+";"+$EventData.NewName)
+
+                                }
+
+                                # File stream created
+                                if ( $System.EventID -eq 15 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";File stream created;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.Contents+";"+$EventData.CreationUtcTime)
+
+                                }
+
+                                # Sysmon config state changed
+                                if ( $System.EventID -eq 16 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Sysmon config state changed;"+$EventData.Configuration+";"+$EventData.ConfigurationFileHash+";"+$EventData.UtcTime)
+
+                                }
+
+                                # PipeEvent - Pipe Created
+                                if ( $System.EventID -eq 17 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";PipeEvent;"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.PipeName)
+
+                                }
+
+                                # PipeEvent - Pipe Connected
+                                if ( $System.EventID -eq 18 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";PipeEvent;"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.PipeName)
+
+                                }
+
+                                # WmiEvent - WmiEventFilter activity detected
+                                if ( $System.EventID -eq 19 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";WmiEvent;"+$EventData.EventType+";"+$EventData.User+";"+$EventData.Operation+";"+$EventData.Name+";"+$EventData.EventNameSpace+";"+$EventData.Query)
+
+                                }
+
+                                # WmiEvent - WmiEventConsumer activity detected
+                                if ( $System.EventID -eq 20 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";WmiEvent;"+$EventData.EventType+";"+$EventData.User+";"+$EventData.Operation+";"+$EventData.Name+";"+$EventData."Type"+";"+$EventData.Destionation)
+
+                                }
+
+                                # WmiEvent - WmiEventConsumerToFilter activity detected
+                                if ( $System.EventID -eq 21 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";WmiEvent;"+$EventData.EventType+";"+$EventData.User+";"+$EventData.Operation+";"+$EventData.Name+";"+$EventData.Consumer+";"+$EventData."Filter")
+
+                                }
+
+                                # Dns query
+                                if ( $System.EventID -eq 22 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Dns query;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.QueryStatus+";"+$EventData.QueryName+";"+$EventData.QueryResults)
+
+                                }
+
+                                # File Delete
+                                if ( $System.EventID -eq 23 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";File Delete;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.Hashes)
+
+                                }
+
+                                # Clipboard changed
+                                if ( $System.EventID -eq 24 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Clipboard changed;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.Session+";"+$EventData.ClientInfo+";"+$EventData.Hashes)
+
+                                }
+
+                                # Process Tampering
+                                if ( $System.EventID -eq 25 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Process Tampering;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData."Type")
+
+                                }
+
+                                # File Deleted
+                                if ( $System.EventID -eq 26 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";File Deleted;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.Hashes)
+
+                                }
+
+                            }
+
+                        } else {
+
+                            Write-Host "System :"
+                            $System | ConvertTo-Json
+                            Write-Host "EventData :"
+                            $EventData | ConvertTo-Json
+
+                        }
 
                     }
         
                 }
 
-
             } # End ForEach
 
         } # End If Event.Count -gt 0
 
-    }    
+    }
 
 }
