@@ -244,7 +244,7 @@ function Evtx-Filter {
     if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('FieldValue') ) {
 
         Write-Host "[+] Searching Field    : $Field=$FieldValue"
-        $FieldQuery = "*[EventData[Data[@Name='$Field']='$FieldValue']] or *[System[($Field='$FieldValue')]]"
+        $FieldQuery = "*[EventData[Data[@Name='$Field']='$FieldValue'] or System[($Field='$FieldValue')]]"
 
     }
 
