@@ -542,10 +542,31 @@ function Evtx-Filter {
 
                             if ( ( $LogSearch -eq "Security" ) -or ( $LogPath -match "Security" ) ){
 
+                                # An authentication package has been loaded by the Local Security Authority
+                                if ( $System.EventID -eq 4610 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.AuthenticationPackageName)
+
+                                }
+
                                 # A trusted logon process has been registered with the Local Security Authority
                                 if ( $System.EventID -eq 4611 ){
 
                                     ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.LogonProcessName+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.SubjectUserSid+";"+$EventData.SubjectLogonId)
+
+                                }
+
+                                # A notification package has been loaded by the Security Account Manager
+                                if ( $System.EventID -eq 4614 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.NotificationPackageName)
+
+                                }
+
+                                # A security package has been loaded by the Local Security Authority
+                                if ( $System.EventID -eq 4622 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SecurityPackageName)
 
                                 }
 
@@ -584,8 +605,22 @@ function Evtx-Filter {
 
                                 }
 
+                                # A registry value was modified
+                                if ( $System.EventID -eq 4657 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.OperationType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.ObjectValueName+";"+$EventData.ObjectName+";"+$EventData.OldValue+";"+$EventData.NewValue)
+
+                                }
+
                                 # The handle to an object was closed
                                 if ( $System.EventID -eq 4658 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.ObjectServer+";"+$EventData.HandleId+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName)
+
+                                }
+
+                                # An object was deleted
+                                if ( $System.EventID -eq 4660 ){
 
                                     ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.ObjectServer+";"+$EventData.HandleId+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName)
 
@@ -619,10 +654,24 @@ function Evtx-Filter {
 
                                 }
 
+                                # A privileged service was called
+                                if ( $System.EventID -eq 4673 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ObjectServer+";"+$EventData.Service+";"+$EventData.PrivilegeList+";"+$EventData.ProcessId+";"+$EventData.ProcessName)
+
+                                }
+
+                                # An operation was attempted on a privileged object
+                                if ( $System.EventID -eq 4674 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ObjectServer+";"+$EventData.ObjectType+";"+$EventData.ObjectName+";"+$EventData.PrivilegeList+";"+$EventData.ProcessId+";"+$EventData.HandleId+";"+$EventData.ProcessName)
+
+                                }
+
                                 # A new process has been created
                                 if ( $System.EventID -eq 4688 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ParentProcessName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.NewProcessId+";"+$EventData.CommandLine)
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ParentProcessName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.NewProcessId+";"+$EventData.NewProcessName+";"+$EventData.CommandLine)
 
                                 }
 
@@ -630,6 +679,104 @@ function Evtx-Filter {
                                 if ( $System.EventID -eq 4689 ){
 
                                     ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.Status)
+
+                                }
+
+                                # An attempt was made to duplicate a handle to an object
+                                if ( $System.EventID -eq 4690 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.SourceProcessId+";"+$EventData.SourceHandleId+";"+$EventData.TargetProcessId+";"+$EventData.TargetHandleId)
+
+                                }
+
+                                # A primary token was assigned to process
+                                if ( $System.EventID -eq 4696 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.TargetProcessId+";"+$EventData.TargetProcessName)
+
+                                }
+
+                                # A service was installed in the system
+                                if ( $System.EventID -eq 4697 ){
+                                    # Find more well known services
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ServiceName+";"+$EventData.ServiceType+";"+$EventData.ServiceAccount+";"+$EventData.ServiceStartType+";"+$EventData.ServiceFileName)
+
+                                }
+
+                                # A scheduled task was created
+                                if ( $System.EventID -eq 4698 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TaskName)
+
+                                }
+
+                                # A scheduled task was deleted
+                                if ( $System.EventID -eq 4699 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TaskName)
+
+                                }
+
+                                # A scheduled task was enabled
+                                if ( $System.EventID -eq 4700 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TaskName)
+
+                                }
+
+                                # A scheduled task was disabled
+                                if ( $System.EventID -eq 4701 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TaskName)
+
+                                }
+
+                                # A scheduled task was updated
+                                if ( $System.EventID -eq 4702 ){
+                                    # TODO later : +";"+$EventData.TaskContentNew needs to be proceeded : XML task definition
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ParentProcessId+";"+$EventData.ClientProcessId+";"+$EventData.TaskName)
+
+                                }
+
+                                # System audit policy was changed
+                                if ( $System.EventID -eq 4719 ){
+                                    # TODO later : SubcategoryGuid and AuditPolicyChanges values must be found and traducted
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.SubcategoryGuid+";"+$EventData.AuditPolicyChanges)
+
+                                }
+
+                                # A user account was created
+                                if ( $System.EventID -eq 4720 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+
+                                }
+
+                                # A user account was enabled
+                                if ( $System.EventID -eq 4722 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+
+                                }
+
+                                # An attempt was made to reset an account's password
+                                if ( $System.EventID -eq 4724 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+
+                                }
+
+                                # A user account was disabled
+                                if ( $System.EventID -eq 4725 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+
+                                }
+
+                                # A user account was deleted
+                                if ( $System.EventID -eq 4726 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
 
                                 }
 
@@ -644,6 +791,118 @@ function Evtx-Filter {
                                 if ( $System.EventID -eq 4733 ){
 
                                     ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+
+                                }
+
+                                # A security-enabled local group was changed
+                                if ( $System.EventID -eq 4735 ){
+                                    # If SamAccountName SidHistory and PrivilegeList = - other param that are not listed have changed
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.SamAccountName+";"+$EventData.SidHistory+";"+$EventData.PrivilegeList)
+
+                                }
+
+                                # A user account was changed
+                                if ( $System.EventID -eq 4738 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.SamAccountName+";"+$EventData.UserPrincipalName+";"+$EventData.AllowedToDelegateTo+";"+$EventData.SidHistory+";"+$EventData.PrivilegeList+";"+$EventData.PasswordLastSet)
+
+                                }
+
+                                # A session was reconnected to a Window Station
+                                if ( $System.EventID -eq 4778 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.AccountDomain+";"+$EventData.AccountName+";"+$EventData.ClientName+";"+$EventData.ClientAddress+";"+$EventData.SessionName)
+
+                                }
+
+                                # A session was disconnected from a Window Station
+                                if ( $System.EventID -eq 4779 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.AccountDomain+";"+$EventData.AccountName+";"+$EventData.ClientName+";"+$EventData.ClientAddress+";"+$EventData.SessionName)
+
+                                }
+
+                                # The name of an account was changed
+                                if ( $System.EventID -eq 4779 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.OldTargetUserName+";"+$EventData.NewTargetUserName)
+
+                                }
+
+                                # The name of an account was changed
+                                if ( $System.EventID -eq 4781 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.OldTargetUserName+";"+$EventData.NewTargetUserName)
+
+                                }
+
+                                # A user's local group membership was enumerated
+                                if ( $System.EventID -eq 4798 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.CallerProcessId+";"+$EventData.CallerProcessName)
+
+                                }
+
+                                # A security-enabled local group membership was enumerated
+                                if ( $System.EventID -eq 4799 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.CallerProcessId+";"+$EventData.CallerProcessName)
+
+                                }
+
+                                # The workstation was locked
+                                if ( $System.EventID -eq 4800 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.SessionId)
+
+                                }
+
+                                # The workstation was unlocked
+                                if ( $System.EventID -eq 4801 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.SessionId)
+
+                                }
+
+                                # Key file operation
+                                if ( $System.EventID -eq 5058 ){
+                                    # Operation needs human traduction
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ClientProcessId+";"+$EventData.ClientCreationTime+";"+$EventData.Operation+";"+$EventData.KeyName+";"+$EventData.KeyFilePath)
+
+                                }
+
+                                # Key migration operation
+                                if ( $System.EventID -eq 5059 ){
+                                    # Operation needs human traduction
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ClientProcessId+";"+$EventData.ClientCreationTime+";"+$EventData.Operation+";"+$EventData.KeyName)
+
+                                }
+
+                                # Cryptographic operation
+                                if ( $System.EventID -eq 5061 ){
+                                    # Operation needs human traduction
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.Operation+";"+$EventData.KeyName)
+
+                                }
+
+                                # The Windows Filtering Platform has permitted a connection
+                                if ( $System.EventID -eq 5156 ){
+                                    # Direction: %%14592 inbound / %%14593 outbound
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.Direction+";"+$EventData.SourceAddress+";"+$EventData.SourcePort+";"+$EventData.DestAddress+";"+$EventData.DestPort+";"+$EventData.Protocol+";"+$EventData.ProcessID+";"+$EventData.Application)
+
+                                }
+
+                                # The Windows Filtering Platform has permitted a bind to a local port
+                                if ( $System.EventID -eq 5158 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SourceAddress+";"+$EventData.SourcePort+";"+$EventData.Protocol+";"+$EventData.ProcessId+";"+$EventData.Application)
+
+                                }
+
+                                # Credential Manager credentials were read
+                                if ( $System.EventID -eq 5379 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessCreationTime+";"+$EventData.ClientProcessId+";"+$EventData.TargetName)
 
                                 }
 
