@@ -368,7 +368,7 @@ function Evtx-Filter {
                                         break
                                         }
                         default       {
-                                        If ( ( $eventXML.Event.System.ChildNodes[$i].'#text' -ne $null ) -Or ( $eventXML.Event.System.ChildNodes[$i].'#text' -ne "NULL" ) ) {
+                                        If ( ( $null -ne $eventXML.Event.System.ChildNodes[$i].'#text' ) -Or ( $eventXML.Event.System.ChildNodes[$i].'#text' -ne "NULL" ) ) {
                                             $System.add( $eventXML.Event.System.ChildNodes[$i].Name , $eventXML.Event.System.ChildNodes[$i].'#text' )
                                         }
                                         break
@@ -378,13 +378,13 @@ function Evtx-Filter {
 
                 for ($i=0; $i -lt $eventXML.Event.UserData.FirstChild.ChildNodes.Count; $i++) {
                     $LogType = "UserData"
-                    if ( ( $eventXML.Event.UserData.ChildNodes[$i].'#text' -ne $null ) -Or ( $eventXML.Event.UserData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
+                    if ( ( $null -ne $eventXML.Event.UserData.ChildNodes[$i].'#text' ) -Or ( $eventXML.Event.UserData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
                         $UserData.add( $eventXML.Event.UserData.FirstChild.ChildNodes[$i].Name , $eventXML.Event.UserData.FirstChild.ChildNodes[$i].'#text' )
                     }
                 }
                 for ($i=0; $i -lt $eventXML.Event.EventData.ChildNodes.Count; $i++) {
                     $LogType = "EventData"
-                    if ( ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne $null ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
+                    if ( ( $null -ne $eventXML.Event.EventData.ChildNodes[$i].'#text' ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
                         $EventData.add( $eventXML.Event.EventData.ChildNodes[$i].Name , $eventXML.Event.EventData.ChildNodes[$i].'#text' )
                     }
                 }
@@ -396,7 +396,7 @@ function Evtx-Filter {
                     # Find description for known EventID
                     $CatalogFilePath = (Get-Location).Path+"\"+$CatalogFile
                     if ( Test-Path $CatalogFilePath ) {
-                        $Match = (( gc $CatalogFilePath ) -match ($System.Provider_Name+";"+$System.EventID+";") ) -split ";"
+                        $Match = (( Get-Content $CatalogFilePath ) -match ($System.Provider_Name+";"+$System.EventID+";") ) -split ";"
                         if ( $Match ) {
                             $Description = $Match[2]
                         } else {
@@ -434,7 +434,7 @@ function Evtx-Filter {
 
                         foreach ( $Data in $(Get-Variable "$LogType" -ValueOnly).Keys ) {
     
-                            if ( ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne $null ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "NULL" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "null" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "Null" ) ) {
+                            if ( ( $null -ne $(Get-Variable "$LogType" -ValueOnly).$Data ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "NULL" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "null" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "Null" ) ) {
                                 # Add your selection of Keys here
                                 if ( (($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")).Count -eq 1 ) {
     
