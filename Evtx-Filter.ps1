@@ -41,6 +41,10 @@ Search `Security` log and shows all the events corresponding to selected **Event
 PS> Evtx-Filter -LogSearch 'Security' -EventId 4627 -Field 'LogonType' -FieldValue 2
 
 .EXAMPLE
+Search `Security` log and shows all the events that match a specific **Field** and DON'T match a specific **FieldValue**.
+PS> Evtx-Filter -LogSearch Security -Field "ProcessId" -NotFieldValue "5924"
+
+.EXAMPLE
 Search `Security` log and shows **only one** event corresponding to selected **EventId**.
 PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -OnlyOne
 
@@ -101,6 +105,9 @@ function Evtx-Filter {
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
         [String] $FieldValue,
+        [Parameter( ParameterSetName="LogSearch" )]
+        [Parameter( ParameterSetName="LogPath" )]
+        [String] $NotFieldValue,
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
         [Parameter( ParameterSetName="RawSearch" )]
@@ -248,6 +255,13 @@ function Evtx-Filter {
 
     }
 
+
+    if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('NotFieldValue') ) {
+
+        Write-Host "[+] Searching Field    : $Field!=$NotFieldValue"
+        $FieldQuery = "*[EventData[Data[@Name='$Field']!='$NotFieldValue'] or System[($Field!='$NotFieldValue')]]"
+
+    }
 
 
     if ( $PSBoundParameters.ContainsKey('TimeFrame') ) {
