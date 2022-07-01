@@ -139,9 +139,19 @@ function Evtx-Filter {
     )
 
 
+    Write-Host "     _____       _             _____ _ _ _            "
+    Write-Host "    | ____|_   _| |___  __    |  ___(_) | |_ ___ _ __ "
+    Write-Host "    |  _| \ \ / / __\ \/ /____| |_  | | | __/ _ \ '__|"
+    Write-Host "    | |___ \ V /| |_ >  <_____|  _| | | | ||  __/ |   "
+    Write-Host "    |_____| \_/  \__/_/\_\    |_|   |_|_|\__\___|_|   "
+    Write-Host "                                                      "
+    Write-Host "                                           by Croko-fr"
+    Write-Host "                                                      "
+
+
     if ( $PSBoundParameters.ContainsKey('ListLog') ) {
 
-        Write-Host "[+] Listing computer eventLogs"
+        Write-Debug "[+] Listing computer eventLogs"
         Get-WinEvent -ListLog * | Select-Object RecordCount,LogName
         break
             
@@ -189,7 +199,7 @@ function Evtx-Filter {
 
     if ( $PSBoundParameters.ContainsKey('RawSearch') ) {
 
-        Write-Host "[+] Searching with Raw keyword : '$RawSearch'"
+        Write-Debug "[+] Searching with Raw keyword : '$RawSearch'"
         $match = Invoke-Expression $Request | Where-Object -Property Message -Match '$RawSearch' | Sort-Object TimeCreated -Descending
         if ( $match.count -ne 0 ) {
             Write-Host "[+] Match found :"
@@ -204,7 +214,7 @@ function Evtx-Filter {
 
     if ( $PSBoundParameters.ContainsKey('ListEventId') ) {
 
-        Write-Host "[+] Searching EventID list."
+        Write-Debug "[+] Searching EventID list."
         $ListOfEventId = Invoke-Expression $Request | Select-Object Id | Sort-Object Id -Unique
 
         if ( $ListOfEventId.count -ne 0 ) {
@@ -234,7 +244,7 @@ function Evtx-Filter {
 
     if ( $PSBoundParameters.ContainsKey('EventId') ) {
 
-        Write-Host "[+] Searching EventId  : $EventId"
+        Write-Debug "[+] Searching EventId  : $EventId"
         if ( $Ids = $EventId.split(",") ) {
             $EventIdQuery = "*[System[EventID=" + $Ids[0]
             for ($i=1; $i -lt $Ids.Count; $i++) {
@@ -250,7 +260,7 @@ function Evtx-Filter {
 
     if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('FieldValue') ) {
 
-        Write-Host "[+] Searching Field    : $Field=$FieldValue"
+        Write-Debug "[+] Searching Field    : $Field=$FieldValue"
         $FieldQuery = "*[EventData[Data[@Name='$Field']='$FieldValue'] or System[($Field='$FieldValue')]]"
 
     }
@@ -258,34 +268,34 @@ function Evtx-Filter {
 
     if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('NotFieldValue') ) {
 
-        Write-Host "[+] Searching Field    : $Field!=$NotFieldValue"
+        Write-Debug "[+] Searching Field    : $Field!=$NotFieldValue"
         $FieldQuery = "*[EventData[Data[@Name='$Field']!='$NotFieldValue'] or System[($Field!='$NotFieldValue')]]"
 
     }
 
 
     if ( $PSBoundParameters.ContainsKey('TimeFrame') ) {
-        Write-Host "[+] Limiting search on TimeFrame : $TimeFrame"
+        Write-Debug "[+] Limiting search on TimeFrame : $TimeFrame"
         if ( $TimeFrame.Contains("s") ) { $Number = $TimeFrame.Split("s"); $seconde = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddSeconds(-$seconde).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
         if ( $TimeFrame.Contains("m") ) { $Number = $TimeFrame.Split("m"); $minute = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddMinutes(-$minute).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
         if ( $TimeFrame.Contains("h") ) { $Number = $TimeFrame.Split("h"); $hour = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddHours(-$hour).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
         if ( $TimeFrame.Contains("d") ) { $Number = $TimeFrame.Split("d"); $jour = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddDays(-$jour).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
         if ( $TimeFrame.Contains("M") ) { $Number = $TimeFrame.Split("M"); $month = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddMonths(-$month).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
-        Write-Host "[+] Search begin : "$Begin
+        Write-Debug "[+] Search begin : $Begin"
         $End = (Get-Date).AddHours(-1).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
-        Write-Host "[+] Search end   : "$End
+        Write-Debug "[+] Search end   : $End"
         $TimeFrameQuery = "*[System[TimeCreated[@SystemTime&gt;='$Begin' and @SystemTime&lt;='$End']]]"
     }
 
 
     if ( $PSBoundParameters.ContainsKey('Period') ) {
-        Write-Host "[+] Limiting search on Period :"
+        Write-Debug "[+] Limiting search on Period :"
         Try { Get-Date -Date "$Begin" | Out-Null } Catch { Write-Host -ForegroundColor Red "[x] Period : BEGIN date is not valid."; break }
         Try { Get-Date -Date "$End" | Out-Null } Catch { Write-Host -ForegroundColor Red "[x] Period : END date is not valid."; break }
         $Begin = (Get-Date -date "$Begin" ).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
-        Write-Host "[+] Search begin : "$Begin
+        Write-Debug "[+] Search begin : $Begin"
         $End = (Get-Date -date "$End" ).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
-        Write-Host "[+] Search end   : "$End
+        Write-Debug "[+] Search end   : $End"
         $TimeFrameQuery = "*[System[TimeCreated[@SystemTime&gt;='$Begin' and @SystemTime&lt;='$End']]]"
     }
 
@@ -316,7 +326,7 @@ function Evtx-Filter {
 
         $XmlQuery += " </Select> </Query> </QueryList>"
 
-        Write-Host "[+] XPath query :"$XmlQuery
+        Write-Debug "[+] XPath query : $XmlQuery"
 
         if ( $PSBoundParameters.ContainsKey('OnlyOne') ) {
             $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -MaxEvent 1 -ErrorAction SilentlyContinue | Sort-Object TimeCreated -Descending'
@@ -324,7 +334,7 @@ function Evtx-Filter {
             $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -ErrorAction SilentlyContinue | Sort-Object TimeCreated -Descending'
         }
         
-        Write-Host "[+] Launching XPath REQUEST : "$Request
+        Write-Debug "[+] Launching XPath REQUEST : $Request"
 
         $Events = Invoke-Expression $Request
 
