@@ -566,6 +566,18 @@ function Evtx-Filter {
 
                         if ( $PSBoundParameters.ContainsKey('ConvertToTimeLine') -eq $true ) {
 
+                            # Setup Log processing
+                            if ( ( $LogSearch -eq "Setup" ) -or ( $LogPath -match "Setup" ) ){
+
+                                if ( $System.EventID -eq 4 ){
+
+                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Security Update;"+$System.ProcessID+";"+$UserData.Client+";"+$UserData.PackageIdentifier+";"+$UserData.ErrorCode)
+
+                                }
+
+                            }
+
+                            # Security Log processing
                             if ( ( $LogSearch -eq "Security" ) -or ( $LogPath -match "Security" ) ){
 
                                 # An authentication package has been loaded by the Local Security Authority
