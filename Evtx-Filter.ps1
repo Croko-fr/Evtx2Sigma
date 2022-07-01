@@ -375,9 +375,13 @@ function Evtx-Filter {
                                         break
                                         }
                         "EventID"    {
-                                        $System.add( "EventID" , $eventXML.Event.System.EventID )
-                                        if ( $eventXML.Event.System.EventID.'#attributes'.Qualifiers ) {
-                                            $System.add( "Qualifiers" , $eventXML.Event.System.EventID.'#attributes'.Qualifiers )
+                                        if ( $eventXML.Event.System.EventID.'#text' -eq $null ) {
+                                            $System.add( "EventID" , $eventXML.Event.System.EventID )
+                                        } else { 
+                                            $System.add( "EventID" , $eventXML.Event.System.EventID.'#text' )
+                                            if ( $eventXML.Event.System.EventID.Qualifiers ) {
+                                                $System.add( "Qualifiers" , $eventXML.Event.System.EventID.Qualifiers )
+                                            }
                                         }
                                         break
                                         }
@@ -392,14 +396,22 @@ function Evtx-Filter {
 
                 for ($i=0; $i -lt $eventXML.Event.UserData.FirstChild.ChildNodes.Count; $i++) {
                     $LogType = "UserData"
-                    if ( ( $null -ne $eventXML.Event.UserData.ChildNodes[$i].'#text' ) -Or ( $eventXML.Event.UserData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
-                        $UserData.add( $eventXML.Event.UserData.FirstChild.ChildNodes[$i].Name , $eventXML.Event.UserData.FirstChild.ChildNodes[$i].'#text' )
+                    if ( ( $eventXML.Event.UserData.ChildNodes[$i].'#text' -ne $null ) -Or ( $eventXML.Event.UserData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
+                        if ( $eventXML.Event.UserData.FirstChild.ChildNodes[$i].Name -eq "Data" ) {
+                            $UserData.add( $eventXML.Event.UserData.FirstChild.ChildNodes[$i].Name+$i , $eventXML.Event.UserData.FirstChild.ChildNodes[$i].'#text' )
+                        } else {
+                            $UserData.add( $eventXML.Event.UserData.FirstChild.ChildNodes[$i].Name , $eventXML.Event.UserData.FirstChild.ChildNodes[$i].'#text' )
+                        }
                     }
                 }
                 for ($i=0; $i -lt $eventXML.Event.EventData.ChildNodes.Count; $i++) {
                     $LogType = "EventData"
-                    if ( ( $null -ne $eventXML.Event.EventData.ChildNodes[$i].'#text' ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
-                        $EventData.add( $eventXML.Event.EventData.ChildNodes[$i].Name , $eventXML.Event.EventData.ChildNodes[$i].'#text' )
+                    if ( ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne $null ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
+                        if ( $eventXML.Event.EventData.ChildNodes[$i].Name -eq "Data" ) {
+                            $EventData.add( $eventXML.Event.EventData.ChildNodes[$i].Name+$i , $eventXML.Event.EventData.ChildNodes[$i].'#text' )
+                        } else {
+                            $EventData.add( $eventXML.Event.EventData.ChildNodes[$i].Name , $eventXML.Event.EventData.ChildNodes[$i].'#text' )
+                        }
                     }
                 }
 
@@ -1112,8 +1124,13 @@ function Evtx-Filter {
 
                             Write-Host "System :"
                             $System | ConvertTo-Json
-                            Write-Host "EventData :"
-                            $EventData | ConvertTo-Json
+                            if ( $EventData.Count -eq 0 ) {
+                                Write-Host "UserData :"
+                                $UserData | ConvertTo-Json
+                            } else {
+                                Write-Host "EventData :"
+                                $EventData | ConvertTo-Json
+                            }
 
                         }
 
