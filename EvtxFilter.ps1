@@ -79,6 +79,25 @@ Online version: https://www.github.com/croko-fr/Evtx2Sigma
 
 #>
 
+
+# TimeLine Object class to get a clear output that will allow Out-GridView format
+class TimeLine {
+
+    [string]$TimeStamp
+    [string]$ComputerName
+    [string]$Action
+    [string]$Description
+
+    TimeLine([string]$TimeStamp,[string]$ComputerName,[string]$Action,[string]$Description) {
+        $this.TimeStamp = $TimeStamp
+        $this.ComputerName = $ComputerName
+        $this.Action = $Action
+        $this.Description = $Description
+    }
+
+}
+
+
 function EvtxFilter {
 
     Param (
@@ -943,182 +962,182 @@ function EvtxFilter {
                                 # Process Create
                                 if ( $System.EventID -eq 1 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Process Create;"+$EventData.ParentProcessId+";"+$EventData.ParentUser+";"+$EventData.ParentCommandLine+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.CommandLine)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Process Create","("+$EventData.User+") PPId:"+$EventData.ParentProcessId+" "+$EventData.ParentCommandLine+" --> PId:"+$EventData.ProcessId+" "+$EventData.CommandLine)
 
                                 }
 
                                 # File creation time changed
                                 if ( $System.EventID -eq 2 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";File creation time changed;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.CreationUtcTime+";"+$EventData.PreviousCreationUtcTime)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"File creation time changed","("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.TargetFileName+" Newdate : "+$EventData.CreationUtcTime+" Olddate : "+$EventData.PreviousCreationUtcTime)
 
                                 }
 
                                 # Network connection detected
                                 if ( $System.EventID -eq 3 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Network connection detected;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.Protocol+";"+$EventData.SourceIp+";"+$EventData.SourcePort+";"+$EventData.DestinationIp+";"+$EventData.DestinationPort)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Network connection detected","("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" : "+$EventData.Protocol+" - "+$EventData.SourceIp+":"+$EventData.SourcePort+" --> "+$EventData.DestinationIp+":"+$EventData.DestinationPort)
 
                                 }
 
                                 # Sysmon service state changed
                                 if ( $System.EventID -eq 4 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Sysmon service state changed;"+$EventData.State+";"+$EventData.SchemaVersion+";"+$EventData.Version)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Sysmon service state changed",$EventData.State+" : Schema "+$EventData.SchemaVersion+" - Version "+$EventData.Version)
 
                                 }
 
                                 # Process terminated
                                 if ( $System.EventID -eq 5 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Process terminated;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Process terminated","("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image)
 
                                 }
 
                                 # Driver loaded into kernel
                                 if ( $System.EventID -eq 6 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Driver loaded;"+$EventData.ImageLoaded+";"+$EventData.Signature+";"+$EventData.SignatureStatus+";"+$EventData.Signed+";"+$EventData.Hashes)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Driver loaded",$EventData.ImageLoaded+" - "+$EventData.Signature+" - "+$EventData.SignatureStatus+" - "+$EventData.Signed+" - "+$EventData.Hashes)
 
                                 }
 
                                 # Image loaded
                                 if ( $System.EventID -eq 7 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Image loaded;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.ImageLoaded+";"+$EventData.Signature+";"+$EventData.SignatureStatus+";"+$EventData.Signed+";"+$EventData.Hashes)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Image loaded","("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.ImageLoaded+" - "+$EventData.Signature+" - "+$EventData.SignatureStatus+" - "+$EventData.Signed+" - "+$EventData.Hashes)
 
                                 }
 
                                 # CreateRemoteThread detected
                                 if ( $System.EventID -eq 8 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";CreateRemoteThread detected;"+$EventData.SourceProcessId+";"+$EventData.SourceUser+";"+$EventData.SourceImage+";"+$EventData.TargetProcessId+";"+$EventData.TargetUser+";"+$EventData.TargetImage+";"+$EventData.NewThreadId+";"+$EventData.StartAddress+";"+$EventData.StartModule+";"+$EventData.StartFunction)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"CreateRemoteThread detected","("+$EventData.SourceUser+") SPId:"+$EventData.SourceProcessId+" "+$EventData.SourceImage+" --> ("+$EventData.TargetUser+") TPId:"+$EventData.TargetProcessId+" "+$EventData.TargetImage+" - "+$EventData.StartAddress+" - "+$EventData.StartModule+" - "+$EventData.StartFunction)
 
                                 }
 
                                 # RawAccessRead detected
                                 if ( $System.EventID -eq 9 ){
 
-                                    #($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";RawAccessRead detected;"+$EventData.SourceProcessId+";"+$EventData.SourceImage+";"+$EventData.TargetProcessId+";"+$EventData.TargetImage+";"+$EventData.NewThreadId+";"+$EventData.StartAddress+";"+$EventData.StartModule+";"+$EventData.StartFunction)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"RawAccessRead detected","("+$EventData.SourceUser+") PId:"+$EventData.SourceProcessId+" "+$EventData.SourceImage+" --> "+$EventData.TargetUser+") PID:"+$EventData.TargetProcessId+" "+$EventData.TargetImage+" - "+$EventData.StartAddress+" - "+$EventData.StartModule+" - "+$EventData.StartFunction)
 
                                 }
 
                                 # Process accessed
                                 if ( $System.EventID -eq 10 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Process accessed;"+$EventData.SourceProcessId+";"+$EventData.SourceUser+";"+$EventData.SourceImage+";"+$EventData.TargetProcessId+";"+$EventData.TargetUser+";"+$EventData.TargetImage)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Process accessed","("+$EventData.SourceUser+") PId:"+$EventData.SourceProcessId+" "+$EventData.SourceImage+" --> ("+$EventData.TargetUser+") PId:"+$EventData.TargetProcessId+" "+$EventData.TargetImage)
 
                                 }
 
                                 # File created
                                 if ( $System.EventID -eq 11 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";File created;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.CreationUtcTime)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"File created","("+$EventData.CreationUtcTime+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.TargetFileName)
 
                                 }
 
                                 # RegistryEvent - Registry object added or deleted
                                 if ( $System.EventID -eq 12 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";RegistryEvent;"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetObject)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"RegistryEvent : "+$EventData.EventType,"PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.TargetObject)
 
                                 }
 
                                 # RegistryEvent - Registry value set
                                 if ( $System.EventID -eq 13 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";RegistryEvent;"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetObject+";"+$EventData.Details)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"RegistryEvent : "+$EventData.EventType,"PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.TargetObject+" - "+$EventData.Details)
 
                                 }
 
                                 # RegistryEvent - Registry object renamed
                                 if ( $System.EventID -eq 14 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";RegistryEvent;"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.Image+";"+$EventData.TargetObject+";"+$EventData.NewName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"RegistryEvent"+$EventData.EventType,"("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.TargetObject+" - "+$EventData.NewName)
 
                                 }
 
                                 # File stream created
                                 if ( $System.EventID -eq 15 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";File stream created;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.Contents+";"+$EventData.CreationUtcTime)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"File stream created","("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.TargetFileName+" - "+$EventData.Contents)
 
                                 }
 
                                 # Sysmon config state changed
                                 if ( $System.EventID -eq 16 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Sysmon config state changed;"+$EventData.Configuration+";"+$EventData.ConfigurationFileHash+";"+$EventData.UtcTime)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Sysmon config state changed",$EventData.Configuration+" - "+$EventData.ConfigurationFileHash+" - "+$EventData.UtcTime)
 
                                 }
 
                                 # PipeEvent - Pipe Created
                                 if ( $System.EventID -eq 17 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";PipeEvent;"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.PipeName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"PipeEvent : "+$EventData.EventType,"("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.PipeName)
 
                                 }
 
                                 # PipeEvent - Pipe Connected
                                 if ( $System.EventID -eq 18 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";PipeEvent;"+$EventData.EventType+";"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.PipeName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"PipeEvent : "+$EventData.EventType,"("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.PipeName)
 
                                 }
 
                                 # WmiEvent - WmiEventFilter activity detected
                                 if ( $System.EventID -eq 19 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";WmiEvent;"+$EventData.EventType+";"+$EventData.User+";"+$EventData.Operation+";"+$EventData.Name+";"+$EventData.EventNameSpace+";"+$EventData.Query)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"WmiEvent : "+$EventData.EventType,"("+$EventData.User+") "+$EventData.Operation+" : "+$EventData.Name+" - "+$EventData.EventNameSpace+" - "+$EventData.Query)
 
                                 }
 
                                 # WmiEvent - WmiEventConsumer activity detected
                                 if ( $System.EventID -eq 20 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";WmiEvent;"+$EventData.EventType+";"+$EventData.User+";"+$EventData.Operation+";"+$EventData.Name+";"+$EventData."Type"+";"+$EventData.Destionation)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"WmiEvent : "+$EventData.EventType,"("+$EventData.User+") "+$EventData.Operation+" : "+$EventData.Name+" - "+$EventData."Type"+" - "+$EventData.Destionation)
 
                                 }
 
                                 # WmiEvent - WmiEventConsumerToFilter activity detected
                                 if ( $System.EventID -eq 21 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";WmiEvent;"+$EventData.EventType+";"+$EventData.User+";"+$EventData.Operation+";"+$EventData.Name+";"+$EventData.Consumer+";"+$EventData."Filter")
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"WmiEvent : "+$EventData.EventType,"("+$EventData.User+") "+$EventData.Operation+" : "+$EventData.Name+" - "+$EventData.Consumer+" - "+$EventData."Filter")
 
                                 }
 
                                 # Dns query
                                 if ( $System.EventID -eq 22 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Dns query;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.QueryStatus+";"+$EventData.QueryName+";"+$EventData.QueryResults)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Dns query","PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> Query : "+$EventData.QueryName+" - Result : "+$EventData.QueryResults)
 
                                 }
 
                                 # File Delete
                                 if ( $System.EventID -eq 23 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";File Delete;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.Hashes)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"File Delete","("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.TargetFileName+" - "+$EventData.Hashes)
 
                                 }
 
                                 # Clipboard changed
                                 if ( $System.EventID -eq 24 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Clipboard changed;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.Session+";"+$EventData.ClientInfo+";"+$EventData.Hashes)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Clipboard changed","("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.Session+" - "+$EventData.ClientInfo+" - "+$EventData.Hashes)
 
                                 }
 
                                 # Process Tampering
                                 if ( $System.EventID -eq 25 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Process Tampering;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData."Type")
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Process Tampering","("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData."Type")
 
                                 }
 
                                 # File Deleted
                                 if ( $System.EventID -eq 26 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";File Deleted;"+$EventData.ProcessId+";"+$EventData.User+";"+$EventData.Image+";"+$EventData.TargetFileName+";"+$EventData.Hashes)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"File Deleted","("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.TargetFileName+" - "+$EventData.Hashes)
 
                                 }
 
