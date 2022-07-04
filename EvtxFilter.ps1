@@ -26,60 +26,60 @@ Screen output or file output as json or sigma rule.
 
 .EXAMPLE
 List all Logs with corresponding number of events.
-PS> Evtx-Filter -ListLog
+PS> EvtxFilter -ListLog
 
 .EXAMPLE
 Get the EventId list from Events in the current  `Application` log.
-PS> Evtx-Filter -LogSearch Application -ListEventId
+PS> EvtxFilter -LogSearch Application -ListEventId
 
 .EXAMPLE
 Search `Security` log and shows all the events corresponding to selected EventId.
-PS> Evtx-Filter -LogSearch 'Security' -EventId 4627
+PS> EvtxFilter -LogSearch 'Security' -EventId 4627
 
 .EXAMPLE
 Search `Security` log and shows all the events corresponding to selected **EventId** that match a specific **Field** and a specific **FieldValue**.
-PS> Evtx-Filter -LogSearch 'Security' -EventId 4627 -Field 'LogonType' -FieldValue 2
+PS> EvtxFilter -LogSearch 'Security' -EventId 4627 -Field 'LogonType' -FieldValue 2
 
 .EXAMPLE
 Search `Security` log and shows all the events that match a specific **Field** and DON'T match a specific **FieldValue**.
-PS> Evtx-Filter -LogSearch Security -Field "ProcessId" -NotFieldValue "5924"
+PS> EvtxFilter -LogSearch Security -Field "ProcessId" -NotFieldValue "5924"
 
 .EXAMPLE
 Search `Security` log and shows **only one** event corresponding to selected **EventId**.
-PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -OnlyOne
+PS> EvtxFilter -LogSearch 'Security' -EventId 4624 -OnlyOne
 
 .EXAMPLE
 Search `Security` log for an event corresponding to selected **EventId** and shows **only one** event as **a SIGMA rule**.
-PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -OnlyOne -ConvertToSigma
+PS> EvtxFilter -LogSearch 'Security' -EventId 4624 -OnlyOne -ConvertToSigma
 
 .EXAMPLE
 Search `Security` log for an event corresponding to selected **EventId** and outputs **only one** event as **a SIGMA rule** writen in the **OutDir** `./results/`.
-PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -OnlyOne -ConvertToSigma -OutDir ./results/
+PS> EvtxFilter -LogSearch 'Security' -EventId 4624 -OnlyOne -ConvertToSigma -OutDir ./results/
 
 .EXAMPLE
 Search `Security` log for all events corresponding to selected **EventId** and outputs **all events** as **SIGMA rules** writen in the **OutDir** `./results/`.
-PS> Evtx-Filter -LogSearch 'Security' -EventId 4624 -ConvertToSigma -OutDir ./results/
+PS> EvtxFilter -LogSearch 'Security' -EventId 4624 -ConvertToSigma -OutDir ./results/
 
 .EXAMPLE
 Search `Microsoft-Windows-Sysmon/Operational` log for all events corresponding to the last **30 minutes TimeFrame**.
-PS> Evtx-Filter -LogSearch 'Microsoft-Windows-Sysmon/Operational' -TimeFrame 30m 
+PS> EvtxFilter -LogSearch 'Microsoft-Windows-Sysmon/Operational' -TimeFrame 30m 
 
 Possible values exemples : 15s / 30m / 12h / 7d / 3M
 
 .EXAMPLE
 Search `Microsoft-Windows-Sysmon/Operational` log for all events corresponding to the specified **Period** between **-Begin** datetime and **-End** datetime.
-PS> Evtx-Filter -LogSearch "Microsoft-Windows-Sysmon/Operational" -Period -Begin  "2021-12-20T10:00:00.000" -End  "2021-12-20T11:00:00.000"
+PS> EvtxFilter -LogSearch "Microsoft-Windows-Sysmon/Operational" -Period -Begin  "2021-12-20T10:00:00.000" -End  "2021-12-20T11:00:00.000"
 
 .EXAMPLE
 Search `Microsoft-Windows-Sysmon/Operational` log for all events corresponding to the last **1 hour** and outputs on screen as a timeline.
-PS> Evtx-Filter -LogSearch "Microsoft-Windows-Sysmon/Operational" -TimeFrame 1h -ConvertToTimeLine
+PS> EvtxFilter -LogSearch "Microsoft-Windows-Sysmon/Operational" -TimeFrame 1h -ConvertToTimeLine
 
 .LINK
 Online version: https://www.github.com/croko-fr/Evtx2Sigma
 
 #>
 
-function Evtx-Filter {
+function EvtxFilter {
 
     Param (
         [Parameter( Mandatory=$true , Position=0, ParameterSetName="ListLog" )]
@@ -87,7 +87,7 @@ function Evtx-Filter {
         [Parameter( Mandatory=$true , Position=0, ParameterSetName="LogSearch" )]
         [String] $LogSearch,
         [Parameter( Mandatory=$true , Position=0, ParameterSetName="LogPath" )]
-        [String] $LogPath = "C:\Windows\System32\Winevt\Logs\Security.evtx",
+        [String] $LogPath,
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
         [Parameter( ParameterSetName="RawSearch" )]
@@ -149,157 +149,139 @@ function Evtx-Filter {
     Write-Host "                                                      "
 
 
-    if ( $PSBoundParameters.ContainsKey('ListLog') ) {
+    ForEach ( $Parameter in $PSBoundParameters.GetEnumerator() ) {
 
-        Write-Debug "[+] Listing computer eventLogs"
-        Get-WinEvent -ListLog * | Select-Object RecordCount,LogName
-        break
-            
-    }
+        Switch ( $Parameter.Key ) {
 
-
-    if ( $PSBoundParameters.ContainsKey('LogPath') ) {
-
-        if ( Test-Path "$LogPath" ) {
-
-            Write-Host "[+] Searching EventLog : $LogPath"
-            $XmlQuery = "<QueryList> <Query Id='0' Path='file://$LogPath'> <Select Path='file://$LogPath'> "
-            $Request = "Get-WinEvent -Path '$LogPath'"
-
-        } else {
-
-            Write-Host "[x] No EventLog found with fullpath : $LogPath"
-            break
-
-        }
-
-    }
-
-
-    if ( $PSBoundParameters.ContainsKey('LogSearch') ) {
-
-        $Logs = @(Get-WinEvent -ListLog *).LogName
-        $LogName = @( $Logs -eq $LogSearch )
-
-        if ( $LogName.Length -ne 0 ) {
-
-            Write-Host "[+] Searching EventLog : $LogSearch"
-            $XmlQuery = "<QueryList>`<Query Id='0' Path='$LogSearch'> <Select Path='$LogSearch'> "
-            $Request = "Get-WinEvent -LogName $LogSearch"
-    
-        } else {
-
-            Write-Host "[x] No EventLog found with name : $LogSearch"
-            Break
-
-        }
-
-    }
-
-
-    if ( $PSBoundParameters.ContainsKey('RawSearch') ) {
-
-        Write-Debug "[+] Searching with Raw keyword : '$RawSearch'"
-        $match = Invoke-Expression $Request | Where-Object -Property Message -Match '$RawSearch' | Sort-Object TimeCreated -Descending
-        if ( $match.count -ne 0 ) {
-            Write-Host "[+] Match found :"
-            $match
-        } else {
-            Write-Host "[x] Keyword not found."
-            Break
-        }
-
-    }
-
-
-    if ( $PSBoundParameters.ContainsKey('ListEventId') ) {
-
-        Write-Debug "[+] Searching EventID list."
-        $ListOfEventId = Invoke-Expression $Request | Select-Object Id | Sort-Object Id -Unique
-
-        if ( $ListOfEventId.count -ne 0 ) {
-
-            $ListOfEventId.Id
-            If ( $PSBoundParameters.ContainsKey('OutDir') ) {
-                Write-Host "[+] Storing SIGMA rules in directory : $OutDir"
-                ForEach ( $SearchId in $ListOfEventId.Id ) {
-                    If ( $PSBoundParameters.ContainsKey('LogSearch') ) {
-                        Evtx-Filter -LogSearch $LogSearch -EventId $SearchId -OnlyOne -ConvertToSigma -OutDir $OutDir
+            "ListLog" {
+                        Write-Host "[+] Listing computer eventLogs"
+                        Get-WinEvent -ListLog * | Select-Object RecordCount,LogName | Where-Object { $_.RecordCount -ne 0 -and $null -ne $_.RecordCount } | Sort-Object RecordCount -Descending
+                        break
+                        write-Host "break1"
+                        break
                     }
-                    If ( $PSBoundParameters.ContainsKey('LogPath') ) {
-                        Evtx-Filter -LogPath $LogPath -EventId $SearchId -OnlyOne -ConvertToSigma -OutDir $OutDir
+
+            "LogPath" {
+                        Try {
+                            $null = Test-Path -Path $LogPath -ErrorAction Stop
+                            $FullLogPath = Resolve-Path $LogPath 
+                            Write-Host "[+] Searching EventLog : $FullLogPath"
+                            $XmlQuery = "<QueryList> <Query Id='0' Path='file://$FullLogPath'> <Select Path='file://$FullLogPath'> "
+                            $Request = "Get-WinEvent -Path '$FullLogPath'"
+                        } Catch {
+                            Write-Host "[x] No EventLog found with path : $LogPath"
+                            break
+                        }
+                        break
                     }
-                }            
-            }
 
-        } else {
+            "LogSearch" {
+                        $Logs = @(Get-WinEvent -ListLog * | Select-Object RecordCount,LogName | Where-Object { $_.RecordCount -ne 0 -and $null -ne $_.RecordCount } ).LogName 
+                        if ( $Logs -match $LogSearch ) {
+                            $LogName = @($Logs -match $LogSearch)
+                            Write-Host "[+] Searching EventLog : $LogName"
+                            $XmlQuery = "<QueryList>`<Query Id='0' Path='$LogName'> <Select Path='$LogName'> "
+                            $Request = "Get-WinEvent -LogName $LogName"
+                        } Else {
+                            Write-Host "[x] No EventLog found with name : $LogSearch"
+                            Break
+                        }
+                        break
+                    }
 
-            Write-Host "[x] EventLog seems to be empty."
-            Break
+            "RawSearch" {
+                        Write-Debug "[+] Searching with Raw keyword : '$RawSearch'"
+                        $match = Invoke-Expression $Request | Where-Object -Property Message -Match '$RawSearch' | Sort-Object TimeCreated -Descending
+                        if ( $match.count -ne 0 ) {
+                            Write-Host "[+] Match found :"
+                            $match
+                        } else {
+                            Write-Host "[x] Keyword not found."
+                            Break
+                        }
+                        break
+                    }
 
+            "ListEventId" {
+                        Write-Debug "[+] Searching EventID list."
+                        $ListOfEventId = Invoke-Expression $Request | Select-Object Id | Sort-Object Id -Unique
+
+                        if ( $ListOfEventId.count -ne 0 ) {
+
+                            $ListOfEventId.Id
+                            If ( $PSBoundParameters.ContainsKey('OutDir') ) {
+                                Write-Host "[+] Storing SIGMA rules in directory : $OutDir"
+                                ForEach ( $SearchId in $ListOfEventId.Id ) {
+                                    If ( $PSBoundParameters.ContainsKey('LogSearch') ) {
+                                        EvtxFilter -LogSearch $LogSearch -EventId $SearchId -OnlyOne -ConvertToSigma -OutDir $OutDir
+                                    }
+                                    If ( $PSBoundParameters.ContainsKey('LogPath') ) {
+                                        EvtxFilter -LogPath $LogPath -EventId $SearchId -OnlyOne -ConvertToSigma -OutDir $OutDir
+                                    }
+                                }            
+                            }
+
+                        } else {
+
+                            Write-Host "[x] EventLog seems to be empty."
+                            Break
+
+                        }
+                        break
+                    }
+
+            "EventId" {
+                        Write-Debug "[+] Searching EventId  : $EventId"
+                        if ( $Ids = $EventId.split(",") ) {
+                            $EventIdQuery = "*[System[EventID=" + $Ids[0]
+                            for ($i=1; $i -lt $Ids.Count; $i++) {
+                                $EventIdQuery += " or EventID=" + $Ids[$i]
+                            }
+                            $EventIdQuery += "]]"
+                        } else {
+                            $EventIdQuery = "*[System[EventID=$EventId]]"
+                        }
+                        break
+                    }
+            "FieldValue" {
+                        Write-Debug "[+] Searching Field    : $Field=$FieldValue"
+                        $FieldQuery = "*[EventData[Data[@Name='$Field']='$FieldValue'] or System[($Field='$FieldValue')]]"
+                        break
+                    }
+            "NotFieldValue" {
+                        Write-Debug "[+] Searching Field    : $Field!=$NotFieldValue"
+                        $FieldQuery = "*[EventData[Data[@Name='$Field']!='$NotFieldValue'] or System[($Field!='$NotFieldValue')]]"
+                        break
+                    }
+            "TimeFrame" {
+                        Write-Debug "[+] Limiting search on TimeFrame : $TimeFrame"
+                        if ( $TimeFrame.Contains("s") ) { $Number = $TimeFrame.Split("s"); $seconde = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddSeconds(-$seconde).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
+                        if ( $TimeFrame.Contains("m") ) { $Number = $TimeFrame.Split("m"); $minute = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddMinutes(-$minute).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
+                        if ( $TimeFrame.Contains("h") ) { $Number = $TimeFrame.Split("h"); $hour = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1-$hour).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
+                        if ( $TimeFrame.Contains("d") ) { $Number = $TimeFrame.Split("d"); $jour = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddDays(-$jour).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
+                        if ( $TimeFrame.Contains("M") ) { $Number = $TimeFrame.Split("M"); $month = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddMonths(-$month).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
+                        Write-Debug "[+] Search begin : $Begin"
+                        $End = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+                        Write-Debug "[+] Search end   : $End"
+                        $TimeFrameQuery = "*[System[TimeCreated[@SystemTime&gt;='$Begin' and @SystemTime&lt;='$End']]]"
+                        break
+                    }
+            "Period" {
+                        Write-Debug "[+] Limiting search on Period :"
+                        Try { Get-Date -Date "$Begin" | Out-Null } Catch { Write-Host -ForegroundColor Red "[x] Period : BEGIN date is not valid."; break }
+                        Try { Get-Date -Date "$End" | Out-Null } Catch { Write-Host -ForegroundColor Red "[x] Period : END date is not valid."; break }
+                        $Begin = (Get-Date -date "$Begin" ).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+                        Write-Debug "[+] Search begin : $Begin"
+                        $End = (Get-Date -date "$End" ).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+                        Write-Debug "[+] Search end   : $End"
+                        $TimeFrameQuery = "*[System[TimeCreated[@SystemTime&gt;='$Begin' and @SystemTime&lt;='$End']]]"
+                        break
+                    }
         }
-        
-    }
-
-
-    if ( $PSBoundParameters.ContainsKey('EventId') ) {
-
-        Write-Debug "[+] Searching EventId  : $EventId"
-        if ( $Ids = $EventId.split(",") ) {
-            $EventIdQuery = "*[System[EventID=" + $Ids[0]
-            for ($i=1; $i -lt $Ids.Count; $i++) {
-                $EventIdQuery += " or EventID=" + $Ids[$i]
-            }
-            $EventIdQuery += "]]"
-        } else {
-            $EventIdQuery = "*[System[EventID=$EventId]]"
-        }
 
     }
 
 
-    if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('FieldValue') ) {
-
-        Write-Debug "[+] Searching Field    : $Field=$FieldValue"
-        $FieldQuery = "*[EventData[Data[@Name='$Field']='$FieldValue'] or System[($Field='$FieldValue')]]"
-
-    }
-
-
-    if ( $PSBoundParameters.ContainsKey('Field') -and $PSBoundParameters.ContainsKey('NotFieldValue') ) {
-
-        Write-Debug "[+] Searching Field    : $Field!=$NotFieldValue"
-        $FieldQuery = "*[EventData[Data[@Name='$Field']!='$NotFieldValue'] or System[($Field!='$NotFieldValue')]]"
-
-    }
-
-
-    if ( $PSBoundParameters.ContainsKey('TimeFrame') ) {
-        Write-Debug "[+] Limiting search on TimeFrame : $TimeFrame"
-        if ( $TimeFrame.Contains("s") ) { $Number = $TimeFrame.Split("s"); $seconde = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddSeconds(-$seconde).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
-        if ( $TimeFrame.Contains("m") ) { $Number = $TimeFrame.Split("m"); $minute = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddMinutes(-$minute).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
-        if ( $TimeFrame.Contains("h") ) { $Number = $TimeFrame.Split("h"); $hour = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddHours(-$hour).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
-        if ( $TimeFrame.Contains("d") ) { $Number = $TimeFrame.Split("d"); $jour = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddDays(-$jour).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
-        if ( $TimeFrame.Contains("M") ) { $Number = $TimeFrame.Split("M"); $month = [convert]::ToInt32($Number[0]) ; $Begin = (Get-Date).AddHours(-1).AddMonths(-$month).ToString("yyyy-MM-ddTHH:mm:ss.fffZ") }
-        Write-Debug "[+] Search begin : $Begin"
-        $End = (Get-Date).AddHours(-1).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
-        Write-Debug "[+] Search end   : $End"
-        $TimeFrameQuery = "*[System[TimeCreated[@SystemTime&gt;='$Begin' and @SystemTime&lt;='$End']]]"
-    }
-
-
-    if ( $PSBoundParameters.ContainsKey('Period') ) {
-        Write-Debug "[+] Limiting search on Period :"
-        Try { Get-Date -Date "$Begin" | Out-Null } Catch { Write-Host -ForegroundColor Red "[x] Period : BEGIN date is not valid."; break }
-        Try { Get-Date -Date "$End" | Out-Null } Catch { Write-Host -ForegroundColor Red "[x] Period : END date is not valid."; break }
-        $Begin = (Get-Date -date "$Begin" ).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
-        Write-Debug "[+] Search begin : $Begin"
-        $End = (Get-Date -date "$End" ).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
-        Write-Debug "[+] Search end   : $End"
-        $TimeFrameQuery = "*[System[TimeCreated[@SystemTime&gt;='$Begin' and @SystemTime&lt;='$End']]]"
-    }
-
-    
     If ( -not $PSBoundParameters.ContainsKey('ListEventId') -and -not $PSBoundParameters.ContainsKey('ListLog') ) {
 
         if ( $EventIdQuery -and $FieldQuery -and $TimeFrameQuery ) {
@@ -344,7 +326,7 @@ function Evtx-Filter {
 
         } else {
 
-            Write-Host "[+]"$Events.Count" matching event found."
+            Write-Host "[+]"$Events.Count"matching event found."
 
             ForEach ( $Event in $Events ) {
 
@@ -385,7 +367,7 @@ function Evtx-Filter {
                                         break
                                         }
                         "EventID"    {
-                                        if ( $eventXML.Event.System.EventID.'#text' -eq $null ) {
+                                        if ( $null -eq $eventXML.Event.System.EventID.'#text' ) {
                                             $System.add( "EventID" , $eventXML.Event.System.EventID )
                                         } else { 
                                             $System.add( "EventID" , $eventXML.Event.System.EventID.'#text' )
@@ -406,7 +388,7 @@ function Evtx-Filter {
 
                 for ($i=0; $i -lt $eventXML.Event.UserData.FirstChild.ChildNodes.Count; $i++) {
                     $LogType = "UserData"
-                    if ( ( $eventXML.Event.UserData.ChildNodes[$i].'#text' -ne $null ) -Or ( $eventXML.Event.UserData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
+                    if ( ( $null -ne $eventXML.Event.UserData.ChildNodes[$i].'#text' ) -Or ( $eventXML.Event.UserData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
                         if ( $eventXML.Event.UserData.FirstChild.ChildNodes[$i].Name -eq "Data" ) {
                             $UserData.add( $eventXML.Event.UserData.FirstChild.ChildNodes[$i].Name+$i , $eventXML.Event.UserData.FirstChild.ChildNodes[$i].'#text' )
                         } else {
@@ -416,7 +398,7 @@ function Evtx-Filter {
                 }
                 for ($i=0; $i -lt $eventXML.Event.EventData.ChildNodes.Count; $i++) {
                     $LogType = "EventData"
-                    if ( ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne $null ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
+                    if ( ( $null -ne $eventXML.Event.EventData.ChildNodes[$i].'#text' ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
                         if ( $eventXML.Event.EventData.ChildNodes[$i].Name -eq "Data" ) {
                             $EventData.add( $eventXML.Event.EventData.ChildNodes[$i].Name+$i , $eventXML.Event.EventData.ChildNodes[$i].'#text' )
                         } else {
