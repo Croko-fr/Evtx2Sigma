@@ -98,6 +98,30 @@ class TimeLine {
 }
 
 
+function AdminWarning {
+
+    if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
+        Write-Warning "Insufficient permissions only limited results will be shown."
+    }
+
+}
+
+
+function AdminRequired {
+
+    Write-Host "[+] Checking for Required elevated permissions..."
+    if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
+        Write-Warning "Insufficient permissions. Open the PowerShell console as an administrator and run this script again."
+        EndScript
+    }
+
+}
+
+
+function EndScript {
+    Exit
+}
+
 function EvtxFilter {
 
     Param (
@@ -158,11 +182,11 @@ function EvtxFilter {
     )
 
 
-    Write-Host "     _____       _             _____ _ _ _            "
-    Write-Host "    | ____|_   _| |___  __    |  ___(_) | |_ ___ _ __ "
-    Write-Host "    |  _| \ \ / / __\ \/ /____| |_  | | | __/ _ \ '__|"
-    Write-Host "    | |___ \ V /| |_ >  <_____|  _| | | | ||  __/ |   "
-    Write-Host "    |_____| \_/  \__/_/\_\    |_|   |_|_|\__\___|_|   "
+    Write-Host "     _____       _         _____ _ _ _            "
+    Write-Host "    | ____|_   _| |___  __|  ___(_) | |_ ___ _ __ "
+    Write-Host "    |  _| \ \ / / __\ \/ /| |_  | | | __/ _ \ '__|"
+    Write-Host "    | |___ \ V /| |_ >  < |  _| | | | ||  __/ |   "
+    Write-Host "    |_____| \_/  \__/_/\_\|_|   |_|_|\__\___|_|   "
     Write-Host "                                                      "
     Write-Host "                                           by Croko-fr"
     Write-Host "                                                      "
@@ -173,10 +197,9 @@ function EvtxFilter {
         Switch ( $Parameter.Key ) {
 
             "ListLog" {
+                        AdminWarning
                         Write-Host "[+] Listing computer eventLogs"
-                        Get-WinEvent -ListLog * | Select-Object RecordCount,LogName | Where-Object { $_.RecordCount -ne 0 -and $null -ne $_.RecordCount } | Sort-Object RecordCount -Descending
-                        break
-                        write-Host "break1"
+                        Get-WinEvent -ListLog * -ErrorAction SilentlyContinue | Select-Object RecordCount,LogName | Where-Object { $_.RecordCount -ne 0 -and $null -ne $_.RecordCount } | Sort-Object RecordCount -Descending
                         break
                     }
 
@@ -189,26 +212,27 @@ function EvtxFilter {
                             $Request = "Get-WinEvent -Path '$FullLogPath'"
                         } Catch {
                             Write-Host "[x] No EventLog found with path : $LogPath"
-                            break
+                            EndScript
                         }
                         break
                     }
 
             "LogSearch" {
-                        $Logs = @(Get-WinEvent -ListLog * | Select-Object RecordCount,LogName | Where-Object { $_.RecordCount -ne 0 -and $null -ne $_.RecordCount } ).LogName 
-                        if ( $Logs -match $LogSearch ) {
-                            $LogName = @($Logs -match $LogSearch)
-                            Write-Host "[+] Searching EventLog : $LogName"
-                            $XmlQuery = "<QueryList>`<Query Id='0' Path='$LogName'> <Select Path='$LogName'> "
-                            $Request = "Get-WinEvent -LogName $LogName"
+                        AdminRequired
+                        $LogName = (Get-WinEvent -ListLog * | Where-Object { $_.Logname -eq "$LogSearch" }).LogName
+                        if ( $LogName -eq $LogSearch ) {
+                            Write-Host "[+] Searching EventLog : $LogSearch"
+                            $XmlQuery = "<QueryList> <Query Id='0' Path='$LogSearch'> <Select Path='$LogSearch'> "
+                            $Request = "Get-WinEvent -LogName '$LogSearch'"
                         } Else {
                             Write-Host "[x] No EventLog found with name : $LogSearch"
-                            Break
+                            EndScript
                         }
                         break
                     }
 
             "RawSearch" {
+                        AdminRequired
                         Write-Debug "[+] Searching with Raw keyword : '$RawSearch'"
                         $match = Invoke-Expression $Request | Where-Object -Property Message -Match '$RawSearch' | Sort-Object TimeCreated -Descending
                         if ( $match.count -ne 0 ) {
@@ -222,6 +246,7 @@ function EvtxFilter {
                     }
 
             "ListEventId" {
+                        AdminWarning
                         Write-Debug "[+] Searching EventID list."
                         $ListOfEventId = Invoke-Expression $Request | Select-Object Id | Sort-Object Id -Unique
 
