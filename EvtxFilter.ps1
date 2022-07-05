@@ -602,6 +602,41 @@ function EvtxFilter {
 
                         if ( $PSBoundParameters.ContainsKey('ConvertToTimeLine') -eq $true ) {
 
+                            # Microsoft-Windows-Windows Defender/Operational Log processing
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Windows Defender/Operational" ) ){
+
+                                if ( $System.EventID -eq 1009 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AV Restore from Quarantaine","("+$EventData.Domain+"\"+$EventData.User+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
+
+                                }
+
+                                if ( $System.EventID -eq 1011 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AV Suppress from Quarantaine","("+$EventData.Domain+"\"+$EventData.User+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
+
+                                }
+
+                                if ( $System.EventID -eq 1013 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AV History Deleted","("+$EventData.Domain+"\"+$EventData.User+") "+$EventData.Timestamp)
+
+                                }
+
+                                if ( $System.EventID -eq 1116 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AV Threat Detection","("+$EventData."Detection User"+" --> "+$EventData."Process Name"+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
+
+                                }
+
+                                if ( $System.EventID -eq 1117 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AV Action : "+$EventData."Action Name","("+$EventData."Detection User"+" --> "+$EventData."Process Name"+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
+
+                                }
+
+                            }
+                            
                             # Setup Log processing
                             if ( ( $LogSearch -eq "Setup" ) -or ( $LogPath -match "Setup" ) ){
 
