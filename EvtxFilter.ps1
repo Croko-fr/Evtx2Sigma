@@ -648,13 +648,45 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-AppLocker/EXE and DLL
-                            if ( ( $LogSearch -eq "Microsoft-Windows-AppLocker/EXE and DLL" ) -or ( $LogPath -match "Microsoft-Windows-AppLocker" ) ){
+                            if ( ( $LogSearch -match "Microsoft-Windows-AppLocker" ) -or ( $LogPath -match "Microsoft-Windows-AppLocker" ) ){
 
-                                # AppLocker file execution allowed
+                                # Microsoft-Windows-AppLocker/EXE and DLL : execution allowed
                                 if ( $System.EventID -eq 8002 ){
 
-                                    if ( $UserData.FqbnLength -gt 10 ) { $SignStatus = "Signed" } else { $SignStatus = "NotSigned" }
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AppLocker file execution","("+$UserData.TargetUser+") $SignStatus - "+$UserData.FullFilePath+" --> "+$UserData.FileHash)
+                                    if ( $UserData.FqbnLength -eq 1 ) { $SignStatus = "NotSigned" } else { $SignStatus = "Signed" }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AppLocker execution allowed : "+$UserData.PolicyName,"("+$UserData.TargetUser+") $SignStatus - "+$UserData.FullFilePath+" --> "+$UserData.FileHash)
+
+                                }
+
+                                # Microsoft-Windows-AppLocker/MSI and Script : execution allowed
+                                if ( $System.EventID -eq 8005 ){
+
+                                    if ( $UserData.FqbnLength -eq 1 ) { $SignStatus = "NotSigned" } else { $SignStatus = "Signed" }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AppLocker execution allowed : "+$UserData.PolicyName,"("+$UserData.TargetUser+") $SignStatus - "+$UserData.FilePath+" --> "+$UserData.FileHash)
+
+                                }
+
+                                # Microsoft-Windows-AppLocker/MSI and Script : execution denied
+                                if ( $System.EventID -eq 8007 ){
+
+                                    if ( $UserData.FqbnLength -eq 1 ) { $SignStatus = "NotSigned" } else { $SignStatus = "Signed" }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AppLocker execution denied : "+$UserData.PolicyName,"("+$UserData.TargetUser+") $SignStatus - "+$UserData.FilePath+" --> "+$UserData.FileHash)
+
+                                }
+
+                                # Microsoft-Windows-AppLocker_Packaged app-Execution : execution allowed
+                                if ( $System.EventID -eq 8020 ){
+
+                                    if ( $UserData.FqbnLength -eq 1 ) { $SignStatus = "NotSigned" } else { $SignStatus = "Signed" }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AppLocker execution allowed : "+$UserData.PolicyName,"("+$UserData.TargetUser+") $SignStatus - "+$UserData.Package)
+
+                                }
+
+                                # Microsoft-Windows-AppLocker/Packaged app-Deployment : installation allowed
+                                if ( $System.EventID -eq 8023 ){
+
+                                    if ( $UserData.FqbnLength -eq 1 ) { $SignStatus = "NotSigned" } else { $SignStatus = "Signed" }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AppLocker installation allowed : "+$UserData.PolicyName,"("+$UserData.TargetUser+") $SignStatus - "+$UserData.Package)
 
                                 }
 
