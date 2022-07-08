@@ -692,6 +692,18 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-AppXDeploymentServer/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-AppXDeploymentServer/Operational" ) -or ( $LogPath -match "Microsoft-Windows-AppXDeploymentServer" ) ){
+
+                                if ( $System.EventID -eq 821 ){
+
+                                    if ( $EventData.ErrorCode -eq "0x0" ) { $ErrorCodeStr = "Successfull" } else { $ErrorCodeStr = "Error "+$EventData.ErrorCode }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AppXDeployment : "+$ErrorCodeStr,"("+$EventData.UserSid+") "+$EventData.MainPackageFullName)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Defender/Operational Log processing
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Windows Defender/Operational" ) ){
 
