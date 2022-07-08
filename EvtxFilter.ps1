@@ -704,6 +704,21 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-Audio/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Audio/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Audio" ) ){
+
+                                if ( $System.EventID -eq 65 ){
+
+                                    Switch ( $EventData.NewState ) {
+                                        "1" { $StateStr = "Connected" }
+                                        "4" { $StateStr = "DisConnected" }
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Audio device state : "+$StateStr,"Flow : "+$EventData.Flow+" "+$EventData.DeviceName+" --> "+$EventData.DeviceId)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Defender/Operational Log processing
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Windows Defender/Operational" ) ){
 
