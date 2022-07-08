@@ -623,11 +623,12 @@ function EvtxFilter {
                         if ( $PSBoundParameters.ContainsKey('ConvertToTimeLine') -eq $true ) {
 
                             # Microsoft-Windows-AppID/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Windows Defender/Operational" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-AppID/Operational" ) -or ( $LogPath -match "Microsoft-Windows-AppID" ) ){
 
                                 # File signing verification
                                 if ( $System.EventID -eq 4004 ){
 
+                                    if ( $null -eq $UserData.PublisherName ) { $UserData.PublisherName = "NotSigned" }
                                     [TimeLine]::New($System.SystemTime,$System.Computer,"File signing verification",$UserData.PublisherName+" --> "+$UserData.FilePath)
 
                                 }
