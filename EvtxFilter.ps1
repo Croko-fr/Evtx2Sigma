@@ -635,6 +635,18 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-Application-Experience/Program-Compatibility-Assistant
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Application-Experience/Program-Compatibility-Assistant" ) -or ( $LogPath -match "Microsoft-Windows-Application-Experience" ) ){
+
+                                # Compatibility assistant file execution
+                                if ( $System.EventID -eq 17 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"File execution compatibility",$UserData.ResolverName+" --> "+$UserData.ExePath)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Defender/Operational Log processing
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Windows Defender/Operational" ) ){
 
