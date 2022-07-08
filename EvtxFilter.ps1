@@ -232,7 +232,7 @@ function EvtxFilter {
                             $Request = "Get-WinEvent -Path '$FullLogPath'"
                         } Catch {
                             Write-Host "[x] No EventLog found with path : $LogPath"
-                            EndScript
+                            Return
                         }
                         break
                     }
@@ -246,7 +246,7 @@ function EvtxFilter {
                             $Request = "Get-WinEvent -LogName '$LogSearch'"
                         } Else {
                             Write-Host "[x] No EventLog found with name : $LogSearch"
-                            EndScript
+                            return
                         }
                         break
                     }
