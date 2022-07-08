@@ -97,6 +97,26 @@ class TimeLine {
 
 }
 
+function Sanitize {
+    param (
+        [string]$StringToProcess
+    )
+    $StringSanitized = $StringToProcess.Replace("é","e")
+    $StringSanitized = $StringSanitized.Replace("è","e")
+    $StringSanitized = $StringSanitized.Replace("ê","e")
+    $StringSanitized = $StringSanitized.Replace("É","e")
+    $StringSanitized = $StringSanitized.Replace("à","e")
+    $StringSanitized = $StringSanitized.Replace("ù","u")
+    $StringSanitized = $StringSanitized.Replace("\","_")
+    $StringSanitized = $StringSanitized.Replace("/","_")
+    $StringSanitized = $StringSanitized.Replace(":","_")
+    $StringSanitized = $StringSanitized.Replace('"',"_")
+    $StringSanitized = $StringSanitized.Replace("'","_")
+    $StringSanitized = $StringSanitized.Replace("=","_")
+    $StringSanitized = $StringSanitized.Replace("<","_")
+    $StringSanitized = $StringSanitized.Replace(">","_")
+    return $StringSanitized
+}
 
 function AdminWarning {
 
@@ -460,7 +480,7 @@ function EvtxFilter {
                     if ( Test-Path $CatalogFilePath ) {
                         $Match = (( Get-Content $CatalogFilePath ) -match ($System.Provider_Name+";"+$System.EventID+";") ) -split ";"
                         if ( $Match ) {
-                            $Description = $Match[2]
+                            $Description = Sanitize($Match[2])
                         } else {
                             $Description = $System.Provider_Name
                         }
@@ -1017,6 +1037,7 @@ function EvtxFilter {
 
                             }
 
+
                             if ( ( $LogSearch -match "Sysmon" ) -or ( $LogPath -match "Sysmon" ) ){
 
                                 # Process Create
@@ -1198,6 +1219,90 @@ function EvtxFilter {
                                 if ( $System.EventID -eq 26 ){
 
                                     [TimeLine]::New($System.SystemTime,$System.Computer,"File Deleted","("+$EventData.User+") PId:"+$EventData.ProcessId+" "+$EventData.Image+" --> "+$EventData.TargetFileName+" - "+$EventData.Hashes)
+
+                                }
+
+                            }
+
+                            if ( ( $LogSearch -eq "System" ) -or ( $LogPath -match "System.evtx" ) ){
+
+                                # BTHUSB
+                                if ( $System.EventID -eq 8 ){
+
+                                    # TODO: Identify what it is, seems to be BTH devices USB Mac Address
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"BTHUSB connection",$EventData.Data1)
+
+                                }
+
+                                # Microsoft-Windows-WindowsUpdateClient
+                                if ( $System.EventID -eq 19 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Update successful","Ver:"+$EventData.updateRevisionNumber+" --> "+$EventData.updateTitle)
+
+                                }
+
+                                # Application Popup
+                                if ( $System.EventID -eq 26 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Application Popup","PId:"+$System.ProcessID+" "+$EventData.Caption+" --> "+$EventData.Message)
+
+                                }
+
+                                # Microsoft-Windows-WindowsUpdateClient
+                                if ( $System.EventID -eq 44 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Update download started","Ver:"+$EventData.updateRevisionNumber+" --> "+$EventData.updateTitle)
+
+                                }
+
+                                # Microsoft-Windows-Ntfs
+                                if ( $System.EventID -eq 98 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Volume Mounting : System Start","DriveName:"+$EventData.DriveName+" DeviceName:"+$EventData.DeviceName)
+
+                                }
+
+                                # Microsoft-Windows-Eventlog
+                                if ( $System.EventID -eq 104 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"A Log was cleaned : "+$UserData.Channel,"PId:"+$System.ProcessID+" --> "+$UserData.SubjectDomainName+"\"+$UserData.SubjectUserName)
+
+                                }
+
+                                # Microsoft-Windows-DNS-Client
+                                if ( $System.EventID -eq 1014 ){
+
+                                    # Find what this queries represant
+                                    # TODO : Address conversion
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"DNS Client","PId:"+$System.ProcessID+" "+$EventData.QueryName+" --> "+$EventData.Address)
+
+                                }
+
+                                # Microsoft-Windows-Winlogon
+                                if ( $System.EventID -eq 7001 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Winlogon Session : open","UserSid: "+$EventData.UserSid)
+
+                                }
+
+                                # Microsoft-Windows-Winlogon
+                                if ( $System.EventID -eq 7002 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Winlogon Session : close","UserSid: "+$EventData.UserSid)
+
+                                }
+
+                                # Microsoft-Windows-UserPnp
+                                if ( $System.EventID -eq 20001 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Driver Installed ("+$UserData.InstallStatus+")","PId:"+$System.ProcessID+" "+$UserData.DriverProvider+" --> "+$UserData.DeviceInstanceID)
+
+                                }
+
+                                # Microsoft-Windows-UserPnp
+                                if ( $System.EventID -eq 20003 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Driver Service added","PId:"+$System.ProcessID+" "+$UserData.ServiceName+" --> "+$UserData.DriverFileName+" for "+$UserData.DeviceInstanceID)
 
                                 }
 
