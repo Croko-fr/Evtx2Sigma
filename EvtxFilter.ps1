@@ -647,6 +647,19 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-AppLocker/EXE and DLL
+                            if ( ( $LogSearch -eq "Microsoft-Windows-AppLocker/EXE and DLL" ) -or ( $LogPath -match "Microsoft-Windows-AppLocker" ) ){
+
+                                # AppLocker file execution allowed
+                                if ( $System.EventID -eq 8002 ){
+
+                                    if ( $UserData.FqbnLength -gt 10 ) { $SignStatus = "Signed" } else { $SignStatus = "NotSigned" }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AppLocker file execution","("+$UserData.TargetUser+") $SignStatus - "+$UserData.FullFilePath+" --> "+$UserData.FileHash)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Defender/Operational Log processing
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Windows Defender/Operational" ) ){
 
