@@ -736,10 +736,10 @@ function EvtxFilter {
 
                                 }
 
-                                # Bits task was started
+                                # Bits task file informations
                                 if ( $System.EventID -eq 59 ){
 
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Bits task was started","PId: "+$System.ProcessID+" "+$EventData.fileTime+" - "+$EventData.bytesTotal+" bytes --> "+$EventData.url)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Bits task file informations","jobId: "+$EventData.Id+" TimeStamp: "+$EventData.fileTime+" - Size: "+$EventData.bytesTotal+" bytes --> "+$EventData.url)
 
                                 }
 
