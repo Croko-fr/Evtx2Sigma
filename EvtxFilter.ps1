@@ -719,6 +719,39 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-Bits-Client/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Bits-Client/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Bits-Client" ) ){
+
+                                # Bits task launched by process
+                                if ( $System.EventID -eq 3 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Bits task launched by process","("+$EventData.jobOwner+") jobId: "+$EventData.jobId+" "+$EventData.ProcessPath+" - "+$EventData.bytesTotal+" bytes --> "+$EventData.url)
+
+                                }
+
+                                # Bits task completed
+                                if ( $System.EventID -eq 4 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Bits task completed","("+$EventData.jobOwner+") jobId: "+$EventData.jobId+" bytesTransferred : "+$EventData.bytesTransferred+" bytes --> for User : "+$EventData.User)
+
+                                }
+
+                                # Bits task was started
+                                if ( $System.EventID -eq 59 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Bits task was started","PId: "+$System.ProcessID+" "+$EventData.fileTime+" - "+$EventData.bytesTotal+" bytes --> "+$EventData.url)
+
+                                }
+
+                                # Bits task file destination
+                                if ( $System.EventID -eq 16403 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Bits task file destination","("+$EventData.jobOwner+") jobId: "+$EventData.jobId+" "+$EventData.RemoteName+" --> "+$EventData.LocalName)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Defender/Operational Log processing
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Windows Defender/Operational" ) ){
 
