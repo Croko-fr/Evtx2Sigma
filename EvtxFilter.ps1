@@ -118,6 +118,103 @@ function Sanitize {
     return $StringSanitized
 }
 
+function AuditSubCategory {
+    param (
+        $InputGuid
+    )
+
+# List Generated with : `auditpol.exe /list /SubCategory:* /v /r` and columns renamed
+$SubCategoryCSV = "SubCategory,Guid
+Système,{69979848-797A-11D9-BED3-505054503030}
+Modification de l’état de la sécurité,{0CCE9210-69AE-11D9-BED3-505054503030}
+Extension système de sécurité,{0CCE9211-69AE-11D9-BED3-505054503030}
+Intégrité du système,{0CCE9212-69AE-11D9-BED3-505054503030}
+Pilote IPSEC,{0CCE9213-69AE-11D9-BED3-505054503030}
+Autres événements système,{0CCE9214-69AE-11D9-BED3-505054503030}
+Ouverture/Fermeture de session,{69979849-797A-11D9-BED3-505054503030}
+Ouvrir la session,{0CCE9215-69AE-11D9-BED3-505054503030}
+Fermer la session,{0CCE9216-69AE-11D9-BED3-505054503030}
+Verrouillage du compte,{0CCE9217-69AE-11D9-BED3-505054503030}
+Mode principal IPsec,{0CCE9218-69AE-11D9-BED3-505054503030}
+Mode rapide IPsec,{0CCE9219-69AE-11D9-BED3-505054503030}
+Mode étendu IPsec,{0CCE921A-69AE-11D9-BED3-505054503030}
+Ouverture de session spéciale,{0CCE921B-69AE-11D9-BED3-505054503030}
+Autres événements d’ouverture/fermeture de session,{0CCE921C-69AE-11D9-BED3-505054503030}
+Serveur NPS,{0CCE9243-69AE-11D9-BED3-505054503030}
+Revendications utilisateur/de périphérique,{0CCE9247-69AE-11D9-BED3-505054503030}
+Appartenance à un groupe,{0CCE9249-69AE-11D9-BED3-505054503030}
+Accès aux objets,{6997984A-797A-11D9-BED3-505054503030}
+Système de fichiers,{0CCE921D-69AE-11D9-BED3-505054503030}
+Registre,{0CCE921E-69AE-11D9-BED3-505054503030}
+Objet de noyau,{0CCE921F-69AE-11D9-BED3-505054503030}
+SAM,{0CCE9220-69AE-11D9-BED3-505054503030}
+Services de certification,{0CCE9221-69AE-11D9-BED3-505054503030}
+Généré par application,{0CCE9222-69AE-11D9-BED3-505054503030}
+Manipulation de handle,{0CCE9223-69AE-11D9-BED3-505054503030}
+Partage de fichiers,{0CCE9224-69AE-11D9-BED3-505054503030}
+Rejet de paquet par la plateforme de filtrage,{0CCE9225-69AE-11D9-BED3-505054503030}
+Connexion de la plateforme de filtrage,{0CCE9226-69AE-11D9-BED3-505054503030}
+Autres événements d’accès à l’objet,{0CCE9227-69AE-11D9-BED3-505054503030}
+Partage de fichiers détaillé,{0CCE9244-69AE-11D9-BED3-505054503030}
+Stockage amovible,{0CCE9245-69AE-11D9-BED3-505054503030}
+Stratégie centralisée intermédiaire,{0CCE9246-69AE-11D9-BED3-505054503030}
+Utilisation de privilège,{6997984B-797A-11D9-BED3-505054503030}
+Utilisation de privilèges sensibles,{0CCE9228-69AE-11D9-BED3-505054503030}
+Utilisation de privilèges non sensibles,{0CCE9229-69AE-11D9-BED3-505054503030}
+Autres événements d’utilisation de privilèges,{0CCE922A-69AE-11D9-BED3-505054503030}
+Suivi détaillé,{6997984C-797A-11D9-BED3-505054503030}
+Création du processus,{0CCE922B-69AE-11D9-BED3-505054503030}
+Fin du processus,{0CCE922C-69AE-11D9-BED3-505054503030}
+Activité DPAPI,{0CCE922D-69AE-11D9-BED3-505054503030}
+Événements RPC,{0CCE922E-69AE-11D9-BED3-505054503030}
+Événements Plug-and-Play,{0CCE9248-69AE-11D9-BED3-505054503030}
+Événements de jeton ajustés à droite,{0CCE924A-69AE-11D9-BED3-505054503030}
+Changement de stratégie,{6997984D-797A-11D9-BED3-505054503030}
+Modification de la stratégie d’audit,{0CCE922F-69AE-11D9-BED3-505054503030}
+Modification de la stratégie d’authentification,{0CCE9230-69AE-11D9-BED3-505054503030}
+Modification de la stratégie d’autorisation,{0CCE9231-69AE-11D9-BED3-505054503030}
+Modification de la stratégie de niveau règle MPSSVC,{0CCE9232-69AE-11D9-BED3-505054503030}
+Modification de la stratégie de plateforme de filtrage,{0CCE9233-69AE-11D9-BED3-505054503030}
+Autres événements de modification de stratégie,{0CCE9234-69AE-11D9-BED3-505054503030}
+Gestion des comptes,{6997984E-797A-11D9-BED3-505054503030}
+Gestion des comptes d’utilisateur,{0CCE9235-69AE-11D9-BED3-505054503030}
+Gestion des comptes d’ordinateur,{0CCE9236-69AE-11D9-BED3-505054503030}
+Gestion des groupes de sécurité,{0CCE9237-69AE-11D9-BED3-505054503030}
+Gestion des groupes de distribution,{0CCE9238-69AE-11D9-BED3-505054503030}
+Gestion des groupes d’applications,{0CCE9239-69AE-11D9-BED3-505054503030}
+Autres événements de gestion des comptes,{0CCE923A-69AE-11D9-BED3-505054503030}
+Accès DS,{6997984F-797A-11D9-BED3-505054503030}
+Accès au service d’annuaire,{0CCE923B-69AE-11D9-BED3-505054503030}
+Modification du service d’annuaire,{0CCE923C-69AE-11D9-BED3-505054503030}
+Réplication du service d’annuaire,{0CCE923D-69AE-11D9-BED3-505054503030}
+Réplication du service d’annuaire détaillé,{0CCE923E-69AE-11D9-BED3-505054503030}
+Connexion de compte,{69979850-797A-11D9-BED3-505054503030}
+Validation des informations d’identification,{0CCE923F-69AE-11D9-BED3-505054503030}
+Opérations de ticket du service Kerberos,{0CCE9240-69AE-11D9-BED3-505054503030}
+Autres événements d’ouverture de session,{0CCE9241-69AE-11D9-BED3-505054503030}
+Service d’authentification Kerberos,{0CCE9242-69AE-11D9-BED3-505054503030}"
+
+    ForEach ( $AuditSubCategory in ($SubCategoryCSV | ConvertFrom-Csv) ) {
+        if ( $AuditSubCategory.Guid -match $InputGuid ) {
+                $ResultStr = $AuditSubCategory.SubCategory
+        }
+    }
+    Return $ResultStr
+
+}
+
+function AuditPolicyChanges {
+    Param (
+        $Value
+    )
+    switch ( $Value.Replace(" ","") ) {
+        "%%8448" { Return "Non Configuré" }
+        "%%8449" { Return "Succes" }
+        "%%8450" { Return "Echec" }
+        "%%8451" { Return "Succes et Echec" }
+    }
+}
+
 function AdminWarning {
 
     if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
@@ -792,7 +889,8 @@ function EvtxFilter {
 
                                 if ( $System.EventID -eq 4 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";Security Update;"+$System.ProcessID+";"+$UserData.Client+";"+$UserData.PackageIdentifier+";"+$UserData.ErrorCode)
+                                    if ( $UserData.ErrorCode -eq "0x0" ) { $ErrorCodeStr = "Success" } else { $ErrorCodeStr = "Error "+$UserData.ErrorCode }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Security Update","PId:"+$System.ProcessID+" Component:"+$UserData.Client+" Update:"+$UserData.PackageIdentifier+" Result:"+$ErrorCodeStr)
 
                                 }
 
@@ -804,320 +902,370 @@ function EvtxFilter {
                                 # An authentication package has been loaded by the Local Security Authority
                                 if ( $System.EventID -eq 4610 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.AuthenticationPackageName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Lsass loaded an auth package","PId:"+$System.ProcessID+" "+$EventData.AuthenticationPackageName)
 
                                 }
 
                                 # A trusted logon process has been registered with the Local Security Authority
                                 if ( $System.EventID -eq 4611 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.LogonProcessName+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.SubjectUserSid+";"+$EventData.SubjectLogonId)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Lsass registered a trusted logon process","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+$System.ProcessID+" "+$EventData.LogonProcessName)
 
                                 }
 
                                 # A notification package has been loaded by the Security Account Manager
                                 if ( $System.EventID -eq 4614 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.NotificationPackageName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Sam loaded a notification package","PId:"+$System.ProcessID+" "+$EventData.NotificationPackageName)
 
                                 }
 
                                 # A security package has been loaded by the Local Security Authority
                                 if ( $System.EventID -eq 4622 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SecurityPackageName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Lsass loaded a security package","PId:"+$System.ProcessID+" "+$EventData.SecurityPackageName)
 
                                 }
 
                                 # An account was successfully logged on
                                 if ( $System.EventID -eq 4624 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+                                    switch ( $EventData.ElevatedToken ) {
+                                        "%%1842" { $TokenStr = "An Admin" }
+                                        "%%1843" { $TokenStr = "A  User " }
+                                    }
+                                    # Exclude LogonType = 0
+                                    if ( $EventData.LogonType -ne 0 ) {
+                                        [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : "+$TokenStr+" account was successfully logged on","("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ProcessName+" LogonType:"+$EventData.LogonType+" Auth:"+$EventData.AuthenticationPackageName+" Logon:"+$EventData.LogonProcessName+" --> "+$EventData.IpAddress+":"+$EventData.IpPort)
+                                    }
 
                                 }
 
                                 # An account failed to log on
                                 if ( $System.EventID -eq 4625 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.AuthenticationPackageName+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.LogonProcessName+";"+$EventData.LogonType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : An account failed to log on","("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") PId:"+[uint32]$System.ProcessId+" "+$EventData.ProcessName+" LogonType:"+$EventData.LogonType+" Auth:"+$EventData.AuthenticationPackageName+" Logon:"+$EventData.LogonProcessName+" --> "+$EventData.IpAddress+":"+$EventData.IpPort)
 
                                 }
 
                                 # An account was logged off
                                 if ( $System.EventID -eq 4634 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.LogonType+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.TargetUserSid+";"+$EventData.TargetLogonId)
+                                    # TODO : User <--> UserSid mapping : $EventData.TargetDomainName+"\"+$EventData.TargetUserName+" <--> "+$EventData.TargetUserSid
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : An account was logged off","("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") LogonType:"+$EventData.LogonType)
 
                                 }
 
                                 # A logon was attempted using explicit credentials
                                 if ( $System.EventID -eq 4648 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.IpAddress+";"+$EventData.IpPort+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.TargetServerName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Logon attempted with explicit credentials","("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ProcessName+" --> "+$EventData.TargetServerName+" ("+$EventData.IpAddress+":"+$EventData.IpPort+")")
 
                                 }
 
                                 # A handle to an object was requested
                                 if ( $System.EventID -eq 4656 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.ObjectServer+";"+$EventData.ObjectType+";"+$EventData.HandleId+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.ObjectName)
+                                    # TODO: Generate such event
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A handle to an object was requested",$System.ProcessID+";"+$EventData.ObjectServer+";"+$EventData.ObjectType+";"+$EventData.HandleId+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.ObjectName)
 
                                 }
 
                                 # A registry value was modified
                                 if ( $System.EventID -eq 4657 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.OperationType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.ObjectValueName+";"+$EventData.ObjectName+";"+$EventData.OldValue+";"+$EventData.NewValue)
+                                    # TODO: Generate such event
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A registry value was modified",$System.ProcessID+";"+$EventData.OperationType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.ObjectValueName+";"+$EventData.ObjectName+";"+$EventData.OldValue+";"+$EventData.NewValue)
 
                                 }
 
                                 # The handle to an object was closed
                                 if ( $System.EventID -eq 4658 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.ObjectServer+";"+$EventData.HandleId+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName)
+                                    # TODO: Generate such event
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : The handle to an object was closed",$System.ProcessID+";"+$EventData.ObjectServer+";"+$EventData.HandleId+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName)
 
                                 }
 
                                 # An object was deleted
                                 if ( $System.EventID -eq 4660 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.ObjectServer+";"+$EventData.HandleId+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : An object was deleted","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ProcessName+" --> "+$EventData.ObjectServer+" : "+$EventData.HandleId)
 
                                 }
 
                                 # An operation was performed on an object
                                 if ( $System.EventID -eq 4662 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.OperationType+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ObjectServer+";"+$EventData.ObjectType+";"+$EventData.ObjectName+";"+$EventData.AdditionalInfo+";"+$EventData.AdditionalInfo2)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Operation performed on an object","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+$System.ProcessID+" "+$EventData.ObjectServer+" "+$EventData.OperationType+" --> "+$EventData.ObjectType+" "+$EventData.ObjectName+" "+$EventData.AdditionalInfo+" "+$EventData.AdditionalInfo2)
 
                                 }
 
                                 # An attempt was made to access an object
                                 if ( $System.EventID -eq 4663 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ObjectServer+";"+$EventData.ObjectType+";"+$EventData.ObjectName+";"+$EventData.ProcessId+";"+$EventData.HandleId+";"+$EventData.ProcessName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : An attempt was made to access an object","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ProcessName+" --> "+$EventData.ObjectServer+" "+$EventData.ObjectType+" : "+$EventData.ObjectName)
 
                                 }
 
-                                #Permissions on an object were changed
+                                # Permissions on an object were changed
                                 if ( $System.EventID -eq 4670 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ObjectServer+";"+$EventData.ObjectType+";"+$EventData.ObjectName+";"+$EventData.ProcessId+";"+$EventData.HandleId+";"+$EventData.ProcessName+";"+$EventData.OldSd+";"+$EventData.NewSd)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Permissions on an object were changed","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ObjectServer+" "+$EventData.ObjectType+" "+$EventData.ProcessName+" "+$EventData.ObjectName+" "+$EventData.OldSd+" --> "+$EventData.NewSd)
 
                                 }
 
                                 # Special privileges assigned to new logon
                                 if ( $System.EventID -eq 4672 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.PrivilegeList)
+                                    $PrivilegeListStr = ($EventData.PrivilegeList).Replace("\n\t\t\t","/")
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Special privileges assigned to new logon","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+$System.ProcessID+" "+$PrivilegeListStr)
 
                                 }
 
                                 # A privileged service was called
                                 if ( $System.EventID -eq 4673 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ObjectServer+";"+$EventData.Service+";"+$EventData.PrivilegeList+";"+$EventData.ProcessId+";"+$EventData.ProcessName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A privileged service was called","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ProcessName+" --> "+$EventData.ObjectServer+" "+$EventData.Service+" "+$EventData.PrivilegeList)
 
                                 }
 
                                 # An operation was attempted on a privileged object
                                 if ( $System.EventID -eq 4674 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ObjectServer+";"+$EventData.ObjectType+";"+$EventData.ObjectName+";"+$EventData.PrivilegeList+";"+$EventData.ProcessId+";"+$EventData.HandleId+";"+$EventData.ProcessName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : An operation was attempted on a privileged object","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ProcessName+" --> "+$EventData.ObjectServer+" "+$EventData.PrivilegeList)
 
                                 }
 
                                 # A new process has been created
                                 if ( $System.EventID -eq 4688 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ParentProcessName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.NewProcessId+";"+$EventData.NewProcessName+";"+$EventData.CommandLine)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A new process has been created","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ParentProcessName+" ("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") "+[uint32]$EventData.NewProcessId+" "+$EventData.NewProcessName+" --> "+$EventData.CommandLine)
 
                                 }
 
                                 # A process has exited
                                 if ( $System.EventID -eq 4689 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.Status)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A process has exited","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ProcessName)
 
                                 }
 
                                 # An attempt was made to duplicate a handle to an object
                                 if ( $System.EventID -eq 4690 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.SourceProcessId+";"+$EventData.SourceHandleId+";"+$EventData.TargetProcessId+";"+$EventData.TargetHandleId)
+                                    # TODO : Generate such event
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : handle duplication attempt","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.SourceProcessId+";"+$EventData.SourceHandleId+";"+[uint32]$EventData.TargetProcessId+";"+$EventData.TargetHandleId)
 
                                 }
 
                                 # A primary token was assigned to process
                                 if ( $System.EventID -eq 4696 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.TargetProcessId+";"+$EventData.TargetProcessName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A primary token was assigned to process","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ProcessName+" --> ("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") TPId:"+[UInt32]$EventData.TargetProcessId+" "+$EventData.TargetProcessName)
 
                                 }
 
                                 # A service was installed in the system
                                 if ( $System.EventID -eq 4697 ){
                                     # Find more well known services
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ServiceName+";"+$EventData.ServiceType+";"+$EventData.ServiceAccount+";"+$EventData.ServiceStartType+";"+$EventData.ServiceFileName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A service was installed in the system","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ClientProcessId+" Name:"+$EventData.ServiceName+" Type:"+$EventData.ServiceType+" Account:"+$EventData.ServiceAccount+" Start:"+$EventData.ServiceStartType+" "+$EventData.ServiceFileName)
 
                                 }
 
                                 # A scheduled task was created
                                 if ( $System.EventID -eq 4698 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TaskName)
+                                    $TaskContentXML = [Xml]$EventData.TaskContent
+                                    $SchedTaskAction = $TaskContentXML.Task.Actions.Exec.Command+" "+$TaskContentXML.Task.Actions.Exec.Arguments
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A scheduled task was created","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ClientProcessId+" "+$EventData.TaskName+" --> "+$SchedTaskAction)
 
                                 }
 
                                 # A scheduled task was deleted
                                 if ( $System.EventID -eq 4699 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TaskName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A scheduled task was deleted","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ClientProcessId+" "+$EventData.TaskName)
 
                                 }
 
                                 # A scheduled task was enabled
                                 if ( $System.EventID -eq 4700 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TaskName)
+                                    # TODO : Generate such event
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A scheduled task was enabled","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ClientProcessId+" "+$EventData.TaskName)
 
                                 }
 
                                 # A scheduled task was disabled
                                 if ( $System.EventID -eq 4701 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TaskName)
+                                    # TODO : Generate such event
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A scheduled task was disabled","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ClientProcessId+" "+$EventData.TaskName)
 
                                 }
 
                                 # A scheduled task was updated
                                 if ( $System.EventID -eq 4702 ){
-                                    # TODO later : +";"+$EventData.TaskContentNew needs to be proceeded : XML task definition
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ParentProcessId+";"+$EventData.ClientProcessId+";"+$EventData.TaskName)
+
+                                    $TaskContentXML = [Xml]$EventData.TaskContentNew
+                                    if ( $null -ne $TaskContentXML.Task.Actions.Exec ) {
+                                        # <Actions Context="LocalSystem">
+                                        #   <Exec>
+                                        #     <Command>%windir%\system32\sc.exe</Command>
+                                        #     <Arguments>start pushtoinstall registration</Arguments>
+                                        #   </Exec>
+                                        # </Actions>
+                                        $SchedTaskAction = "CommandLine: "+$TaskContentXML.Task.Actions.Exec.Command+" "+$TaskContentXML.Task.Actions.Exec.Arguments
+                                    } else {
+                                        # <Actions Context="LocalSystem">
+                                        #   <ComHandler>
+                                        #     <ClassId>{47E30D54-DAC1-473A-AFF7-2355BF78881F}</ClassId>
+                                        #     <Data><![CDATA[NGCKeyPregen]]></Data>
+                                        #   </ComHandler>
+                                        # </Actions>
+                                        $SchedTaskAction = "ComHandler: "+$TaskContentXML.Task.Actions.ComHandler.ClassId+" "+$TaskContentXML.Task.Actions.ComHandler.Data
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A scheduled task was updated","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ClientProcessId+" "+$EventData.TaskName+" --> "+$SchedTaskAction)
 
                                 }
 
                                 # System audit policy was changed
                                 if ( $System.EventID -eq 4719 ){
-                                    # TODO later : SubcategoryGuid and AuditPolicyChanges values must be found and traducted
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.SubcategoryGuid+";"+$EventData.AuditPolicyChanges)
+
+                                    $SubCategoryStr = AuditSubCategory($EventData.SubcategoryGuid)
+                                    if ( ($EventData.AuditPolicyChanges).Split(",").Count -eq 1 ) { 
+                                        $AuditPolicyChangesStr = AuditPolicyChanges($EventData.AuditPolicyChanges)
+                                    } else {
+                                        $i = 0
+                                        ForEach ( $AuditPolicyChange in ($EventData.AuditPolicyChanges).Split(",") ) {
+                                            if ( $i -eq 0 ) {
+                                                $AuditPolicyChangesStr = AuditPolicyChanges($AuditPolicyChange)
+                                                $i++
+                                            } else {
+                                                $AuditPolicyChangesStr += ", "
+                                                $AuditPolicyChangesStr += AuditPolicyChanges($AuditPolicyChange)
+                                            }
+                                        }
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : System audit policy was changed","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" Subcategory:"+$SubCategoryStr+" --> "+$AuditPolicyChangesStr)
 
                                 }
 
                                 # A user account was created
                                 if ( $System.EventID -eq 4720 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A user account was created","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+" ("+$EventData.TargetSid+")")
 
                                 }
 
                                 # A user account was enabled
                                 if ( $System.EventID -eq 4722 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A user account was enabled","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+" ("+$EventData.TargetSid+")")
 
                                 }
 
                                 # An attempt was made to reset an account's password
                                 if ( $System.EventID -eq 4724 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A user account was enabled","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+" ("+$EventData.TargetSid+")")
 
                                 }
 
                                 # A user account was disabled
                                 if ( $System.EventID -eq 4725 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A user account was enabled","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+" ("+$EventData.TargetSid+")")
 
                                 }
 
                                 # A user account was deleted
                                 if ( $System.EventID -eq 4726 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A user account was deleted","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+" ("+$EventData.TargetSid+")")
 
                                 }
 
                                 # A member was added to a security-enabled local group
                                 if ( $System.EventID -eq 4732 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A member added to local group","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" "+$EventData.MemberSid+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName)
 
                                 }
 
                                 # A member was removed from a security-enabled local group
                                 if ( $System.EventID -eq 4733 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A member removed from local group","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" "+$EventData.MemberSid+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName)
 
                                 }
 
                                 # A security-enabled local group was changed
                                 if ( $System.EventID -eq 4735 ){
                                     # If SamAccountName SidHistory and PrivilegeList = - other param that are not listed have changed
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.SamAccountName+";"+$EventData.SidHistory+";"+$EventData.PrivilegeList)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A user account was changed","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" "+$EventData.UserPrincipalName+" "+$EventData.AllowedToDelegateTo+" "+$EventData.SidHistory+" "+$EventData.PrivilegeList+" "+$EventData.PasswordLastSet+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName)
 
                                 }
 
                                 # A user account was changed
                                 if ( $System.EventID -eq 4738 ){
-
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.SamAccountName+";"+$EventData.UserPrincipalName+";"+$EventData.AllowedToDelegateTo+";"+$EventData.SidHistory+";"+$EventData.PrivilegeList+";"+$EventData.PasswordLastSet)
+                                    # TODO : Detect what changed
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A user account was changed","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" "+$EventData.UserPrincipalName+" "+$EventData.AllowedToDelegateTo+" "+$EventData.SidHistory+" "+$EventData.PrivilegeList+" "+$EventData.PasswordLastSet+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName)
 
                                 }
 
                                 # A session was reconnected to a Window Station
                                 if ( $System.EventID -eq 4778 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.AccountDomain+";"+$EventData.AccountName+";"+$EventData.ClientName+";"+$EventData.ClientAddress+";"+$EventData.SessionName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A session was reconnected to a Window Station","("+$EventData.AccountDomain+"\"+$EventData.AccountName+") SessionName:"+$EventData.SessionName+" ClientName:"+$EventData.ClientName+" ClientAddress:"+$EventData.ClientAddress)
 
                                 }
 
                                 # A session was disconnected from a Window Station
                                 if ( $System.EventID -eq 4779 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.AccountDomain+";"+$EventData.AccountName+";"+$EventData.ClientName+";"+$EventData.ClientAddress+";"+$EventData.SessionName)
-
-                                }
-
-                                # The name of an account was changed
-                                if ( $System.EventID -eq 4779 ){
-
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.OldTargetUserName+";"+$EventData.NewTargetUserName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A session was reconnected to a Window Station","("+$EventData.AccountDomain+"\"+$EventData.AccountName+") SessionName:"+$EventData.SessionName+" ClientName:"+$EventData.ClientName+" ClientAddress:"+$EventData.ClientAddress)
 
                                 }
 
                                 # The name of an account was changed
                                 if ( $System.EventID -eq 4781 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.OldTargetUserName+";"+$EventData.NewTargetUserName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : The name of an account was changed","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" "+$EventData.TargetDomainName+"\"+$EventData.OldTargetUserName+" --> "+$EventData.TargetDomainName+"\"+$EventData.NewTargetUserName)
 
                                 }
 
                                 # A user's local group membership was enumerated
                                 if ( $System.EventID -eq 4798 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.CallerProcessId+";"+$EventData.CallerProcessName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A user's local group membership was enumerated","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") CallerPId:"+[uint32]$EventData.CallerProcessId+" "+$EventData.CallerProcessName+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName)
 
                                 }
 
                                 # A security-enabled local group membership was enumerated
                                 if ( $System.EventID -eq 4799 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.CallerProcessId+";"+$EventData.CallerProcessName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A user's local group membership was enumerated","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") CallerPId:"+[uint32]$EventData.CallerProcessId+" "+$EventData.CallerProcessName+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName)
 
                                 }
 
                                 # The workstation was locked
                                 if ( $System.EventID -eq 4800 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.SessionId)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : The workstation was locked","("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") SessionId:"+$EventData.SessionId)
 
                                 }
 
                                 # The workstation was unlocked
                                 if ( $System.EventID -eq 4801 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : The workstation was unlocked","("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") SessionId:"+$EventData.SessionId)
+
+                                }
+
+                                # The screen saver was invoked
+                                if ( $System.EventID -eq 4802 ){
 
                                     ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.SessionId)
 
@@ -1126,42 +1274,46 @@ function EvtxFilter {
                                 # Key file operation
                                 if ( $System.EventID -eq 5058 ){
                                     # Operation needs human traduction
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ClientProcessId+";"+$EventData.ClientCreationTime+";"+$EventData.Operation+";"+$EventData.KeyName+";"+$EventData.KeyFilePath)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Key file operation","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") ClientPId:"+$EventData.ClientProcessId+" KeyName:"+$EventData.KeyName+" KeyFilePath:"+$EventData.KeyFilePath)
 
                                 }
 
                                 # Key migration operation
                                 if ( $System.EventID -eq 5059 ){
                                     # Operation needs human traduction
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ClientProcessId+";"+$EventData.ClientCreationTime+";"+$EventData.Operation+";"+$EventData.KeyName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Key migration operation","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") ClientPId:"+$EventData.ClientProcessId+" KeyName:"+$EventData.KeyName+" AlgorithmName:"+$EventData.AlgorithmName)
 
                                 }
 
                                 # Cryptographic operation
                                 if ( $System.EventID -eq 5061 ){
                                     # Operation needs human traduction
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.Operation+";"+$EventData.KeyName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Cryptographic operation","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+$System.ProcessID+" KeyName:"+$EventData.KeyName+" AlgorithmName:"+$EventData.AlgorithmName)
 
                                 }
 
                                 # The Windows Filtering Platform has permitted a connection
                                 if ( $System.EventID -eq 5156 ){
-                                    # Direction: %%14592 inbound / %%14593 outbound
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.Direction+";"+$EventData.SourceAddress+";"+$EventData.SourcePort+";"+$EventData.DestAddress+";"+$EventData.DestPort+";"+$EventData.Protocol+";"+$EventData.ProcessID+";"+$EventData.Application)
+
+                                    switch ( $EventData.Direction ) {
+                                        "%%14592" { $DirectionStr = "Inbound" }
+                                        "%%14593" { $DirectionStr = "Outbound" }
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Filtering Platform permitted a connection","PId:"+$EventData.ProcessId+" "+$EventData.Application+" "+$DirectionStr+" "+$EventData.Protocol+" "+$EventData.SourceAddress+":"+$EventData.SourcePort+" --> "+$EventData.DestAddress+":"+$EventData.DestPort)
 
                                 }
 
                                 # The Windows Filtering Platform has permitted a bind to a local port
                                 if ( $System.EventID -eq 5158 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SourceAddress+";"+$EventData.SourcePort+";"+$EventData.Protocol+";"+$EventData.ProcessId+";"+$EventData.Application)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Filtering Platform permitted a bind to a local port","PId:"+$EventData.ProcessId+" "+$EventData.Application+" "+$EventData.Protocol+" "+$EventData.SourceAddress+":"+$EventData.SourcePort)
 
                                 }
 
                                 # Credential Manager credentials were read
                                 if ( $System.EventID -eq 5379 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessCreationTime+";"+$EventData.ClientProcessId+";"+$EventData.TargetName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Credential Manager credentials were read","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") ClientPId:"+$EventData.ClientProcessId+" "+$EventData.ProcessCreationTime+" TargetName:"+$EventData.TargetName+" Count:"+$EventData.CountOfCredentialsReturned)
 
                                 }
 
