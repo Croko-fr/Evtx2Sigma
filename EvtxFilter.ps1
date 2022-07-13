@@ -884,6 +884,100 @@ function EvtxFilter {
 
                             }
                             
+                            # Microsoft-Windows-PowerShell/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
+
+                                if ( $System.EventID -eq 4104 ){
+
+                                    # TODO : Reconstruct powershell script
+                                    # ScriptBlockText : contains the Powershell script part
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Scriptblock text creation","PID:"+$System.ProcessID+" Message: "+$EventData.MessageNumber+"/"+$EventData.MessageTotal+" Id:"+$EventData.ScriptBlockId+" --> "+$EventData.Path)
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-SmbClient/Connectivity
+                            if ( ( $LogSearch -eq "Microsoft-Windows-SmbClient/Connectivity" ) -or ( $LogPath -match "Microsoft-Windows-SmbClient" ) ){
+
+                                if ( $System.EventID -eq 30800 ){
+
+                                    # TODO: find what generate this event
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Unable to resolve server name","ServerName:"+$EventData.ServerName+" Status:"+$EventData.Status+" Reason:"+$EventData.Reason)
+
+                                }
+
+                                if ( $System.EventID -eq 30803 ){
+
+                                    # TODO: can detect those commands when not working :
+                                    #    net use \\MyServerThatDontExist\c$
+                                    #    dir \\MyServerThatDontExist\c$
+                                    # 3221226038 : Network path not found
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Network connexion aborted","ServerName:"+$EventData.ServerName+" Status:"+$EventData.Status+" Reason:"+$EventData.Reason+" InstanceName:"+$EventData.InstanceName+" ConnectionType:"+$EventData.ConnectionType)
+
+                                }
+
+                                if ( $System.EventID -eq 30810 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"TCP_IP interface was installed","IfIndex:"+$EventData.IfIndex+" Name:"+$EventData.Name)
+
+                                }
+
+                                # TODO :
+                                # if time between installed and deleted > 7 seconds means : Network interface connexion was active
+                                # deleted then installed = 6 seconds means : Network interface disconnected ( connexion stops )
+                                # deleted then installed < 2 seconds means : Network interface connected ( connexion begins )
+
+                                if ( $System.EventID -eq 30811 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"TCP_IP interface was deleted","IfIndex:"+$EventData.IfIndex+" Name:"+$EventData.Name)
+
+                                }
+
+                                if ( $System.EventID -eq 30812 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"TDI interface was installed","ServerName:"+$EventData.ServerName)
+
+                                }
+
+                                if ( $System.EventID -eq 30813 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"TDI interface was deleted","ServerName:"+$EventData.ServerName)
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-SmbClient/Security
+                            if ( ( $LogSearch -eq "Microsoft-Windows-SmbClient/Security" ) -or ( $LogPath -match "Microsoft-Windows-SmbClient" ) ){
+
+                                if ( $System.EventID -eq 31001 ){
+
+                                    # TODO: Find right Description
+                                    if ( $null -eq $EventData.UserName ) {
+                                        $UserNameStr = "None"
+                                    } else {
+                                        $UserNameStr = $EventData.UserName
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Connexion unsuccessfull","("+$UserNameStr+") "+"ServerName:"+$EventData.ServerName+" "+$EventData.PrincipalName+" Status:"+$EventData.Status+" Reason:"+$EventData.Reason)
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-SMBServer/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-SMBServer/Operational" ) -or ( $LogPath -match "Microsoft-Windows-SMBServer" ) ){
+
+                                if ( $System.EventID -eq 1010 ){
+
+                                    # TODO: Find real description
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Netbios Smb","("+$UserData.DomainName+"\"+$UserData.Name+") TransportName:"+$UserData.TransportName+" TransportFlags:"+$UserData.TransportFlags)
+
+                                }
+
+                            }
+
+
                             # Setup Log processing
                             if ( ( $LogSearch -eq "Setup" ) -or ( $LogPath -match "Setup" ) ){
 
