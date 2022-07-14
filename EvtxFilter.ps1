@@ -549,23 +549,23 @@ function EvtxFilter {
 
                 for ($i=0; $i -lt $eventXML.Event.UserData.FirstChild.ChildNodes.Count; $i++) {
                     $LogType = "UserData"
-                    if ( ( $null -ne $eventXML.Event.UserData.ChildNodes[$i].'#text' ) -Or ( $eventXML.Event.UserData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
+#                    if ( $null -ne $eventXML.Event.UserData.ChildNodes[$i].'#text' ) {
                         if ( $eventXML.Event.UserData.FirstChild.ChildNodes[$i].Name -eq "Data" ) {
                             $UserData.add( $eventXML.Event.UserData.FirstChild.ChildNodes[$i].Name+$i , $eventXML.Event.UserData.FirstChild.ChildNodes[$i].'#text' )
                         } else {
                             $UserData.add( $eventXML.Event.UserData.FirstChild.ChildNodes[$i].Name , $eventXML.Event.UserData.FirstChild.ChildNodes[$i].'#text' )
                         }
-                    }
+#                    }
                 }
                 for ($i=0; $i -lt $eventXML.Event.EventData.ChildNodes.Count; $i++) {
                     $LogType = "EventData"
-                    if ( ( $null -ne $eventXML.Event.EventData.ChildNodes[$i].'#text' ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "NULL" ) -Or ( $eventXML.Event.EventData.ChildNodes[$i].'#text' -ne "null" ) ) {
+#                    if ( $null -ne $eventXML.Event.EventData.ChildNodes[$i].'#text' ) {
                         if ( $eventXML.Event.EventData.ChildNodes[$i].Name -eq "Data" ) {
                             $EventData.add( $eventXML.Event.EventData.ChildNodes[$i].Name+$i , $eventXML.Event.EventData.ChildNodes[$i].'#text' )
                         } else {
                             $EventData.add( $eventXML.Event.EventData.ChildNodes[$i].Name , $eventXML.Event.EventData.ChildNodes[$i].'#text' )
                         }
-                    }
+#                    }
                 }
 
                 if ( $PSBoundParameters.ContainsKey('ConvertToSigma') -eq $true ) {
@@ -613,8 +613,10 @@ function EvtxFilter {
 
                         foreach ( $Data in $(Get-Variable "$LogType" -ValueOnly).Keys ) {
     
-                            if ( ( $null -ne $(Get-Variable "$LogType" -ValueOnly).$Data ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "NULL" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "null" ) -and ( $(Get-Variable "$LogType" -ValueOnly).$Data -ne "Null" ) ) {
-                                # Add your selection of Keys here
+                            if ( $null -eq ($(Get-Variable "$LogType" -ValueOnly).$Data ) ) {
+                                $Result += "        " + $Data + ": null`r`n"
+                            } else {
+
                                 if ( (($(Get-Variable "$LogType" -ValueOnly).$Data).Split("`r`n")).Count -eq 1 ) {
     
                                     if ( ($(Get-Variable "$LogType" -ValueOnly).$Data).Contains(",") ) {
@@ -651,7 +653,6 @@ function EvtxFilter {
     
                                 }
                             }
-    
                         }
 
                     }
