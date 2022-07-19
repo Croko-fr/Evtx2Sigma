@@ -992,6 +992,23 @@ function EvtxFilter {
 
                             }
                             
+                            # Microsoft-Windows-EapMethods-RasChap/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-EapMethods-RasChap/Operational" ) -or ( $LogPath -match "Microsoft-Windows-EapMethods-RasChap" ) ){
+
+                                if ( $System.EventID -eq 100 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Successful authentication for user in the domain","PID:"+$System.ProcessID+" Domain:"+$EventData.Domain)
+
+                                }
+
+                                if ( $System.EventID -eq 107 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Sending credentials to server for user name","PID:"+$System.ProcessID+" Domain:"+$EventData.Domain)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-PowerShell/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
 
