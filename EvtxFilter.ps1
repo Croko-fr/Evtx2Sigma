@@ -850,8 +850,56 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-CodeIntegrity/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-CodeIntegrity/Operational" ) -or ( $LogPath -match "Microsoft-Windows-CodeIntegrity" ) ){
+
+                                if ( $System.EventID -eq 3033 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Code Integrity : File did not meet the signing level requirements","RequestedPolicy:"+$EventData.RequestedPolicy+" ValidatedPolicy:"+$EventData.ValidatedPolicy+" "+$EventData.ProcessNameBuffer+" --> "+$EventData.FileNameBuffer)
+
+                                }
+
+                                if ( $System.EventID -eq 3089 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Signature information for another event","PID:"+$System.ProcessID+" PublisherName:"+$EventData.PublisherName+" --> IssuerName:"+$EventData.IssuerName)
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-Crypto-DPAPI/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Crypto-DPAPI/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Crypto-DPAPI" ) ){
+
+                                if ( $System.EventID -eq 12289 ){
+
+                                    # HINT : User / UserSid mapping and connexion
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"DPAPI found credential key","UserName:"+$EventData.UserName+" UserSid:"+$EventData.UserSid)
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-Dhcp-Client/Admin
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Dhcp-Client/Admin" ) -or ( $LogPath -match "Microsoft-Windows-Dhcp-Client" ) ){
+
+                                if ( $System.EventID -eq 50066 ){
+
+                                    # HINT : NetworkCard MacAddress --> Connexion to SSID
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"DHCP gave an address for SSID to HWaddr","SSID:"+$EventData.NetworkHintString+" <--> HWAddress:"+$EventData.HWAddress)
+
+                                }
+
+                                if ( $System.EventID -eq 50067 ){
+
+                                    # HINT : NetworkCard MacAddress --> Connexion to SSID
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"DHCP received SSID for HWaddr","SSID:"+$EventData.NetworkHintString+" <--> HWAddress:"+$EventData.HWAddress)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Defender/Operational Log processing
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Windows Defender/Operational" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Windows Defender" ) ){
 
                                 if ( $System.EventID -eq 1009 ){
 
