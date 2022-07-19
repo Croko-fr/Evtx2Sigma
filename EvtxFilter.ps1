@@ -97,6 +97,19 @@ class TimeLine {
 
 }
 
+# Show "Null" string when desired if $null
+function ShowIfNull {
+    param (
+        $DataToCheck
+    )
+    if ( $null -eq $DataToCheck ) {
+        return "Null"
+    } else {
+        return $DataToCheck
+    }
+    
+}
+
 function Sanitize {
     param (
         [string]$StringToProcess
@@ -893,6 +906,52 @@ function EvtxFilter {
 
                                     # HINT : NetworkCard MacAddress --> Connexion to SSID
                                     [TimeLine]::New($System.SystemTime,$System.Computer,"DHCP received SSID for HWaddr","SSID:"+$EventData.NetworkHintString+" <--> HWAddress:"+$EventData.HWAddress)
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-Diagnostics-Networking/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Diagnostics-Networking/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Diagnostics-Networking" ) ){
+
+                                if ( $System.EventID -eq 1000 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Network diagnostic started by user","PID:"+$System.ProcessID+" HelperClassName:"+$EventData.HelperClassName+" "+$EventData.HelperClassAttributes)
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-Diagnostics-Performance/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Diagnostics-Performance/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Diagnostics-Performance" ) ){
+
+                                if ( $System.EventID -eq 100 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Windows has started","UserBootInstance:"+$EventData.UserBootInstance+" BootStartTime:"+$EventData.BootStartTime+" --> BootEndTime:"+$EventData.BootEndTime)
+
+                                }
+
+                                if ( $System.EventID -eq 103 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Startup service degraded performances","Service:"+$EventData.Name+" Path:"+$EventData.Path+" ("+(ShowIfNull $EventData.CompanyName)+") "+(ShowIfNull $EventData.FriendlyName))
+
+                                }
+
+                                if ( $System.EventID -eq 109 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device led to degraded performances","Device:"+$EventData.Name+" Path:"+(ShowIfNull $EventData.Path)+" ("+(ShowIfNull $EventData.CompanyName)+") "+(ShowIfNull $EventData.FriendlyName))
+
+                                }
+
+                                if ( $System.EventID -eq 200 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Windows was shutdown","ShutdownIsDegradation:"+$EventData.ShutdownIsDegradation+" ShutdownStartTime:"+$EventData.ShutdownStartTime+" --> ShutdownEndTime:"+$EventData.ShutdownEndTime)
+
+                                }
+
+                                if ( $System.EventID -eq 203 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Service delayed shutdown","Service:"+$EventData.Name+" Path:"+$EventData.Path+" ("+(ShowIfNull $EventData.CompanyName)+") "+(ShowIfNull $EventData.FriendlyName))
 
                                 }
 
