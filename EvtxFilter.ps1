@@ -1009,6 +1009,52 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-GroupPolicy/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-GroupPolicy/Operational" ) -or ( $LogPath -match "Microsoft-Windows-GroupPolicy" ) ){
+
+                                if ( $System.EventID -eq 8004 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Manual processing of group policy done for computer","PID:"+$System.ProcessID+" IsMachine:"+$EventData.IsMachine+" PrincipalSamName:"+$EventData.PrincipalSamName)
+
+                                }
+
+                                # HINT : 8004 + 8005 within 0.30 second seams to mean that user executed : gpupdate /force
+                                if ( $System.EventID -eq 8005 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Manual processing of group policy done for user","PID:"+$System.ProcessID+"IsMachine:"+$EventData.IsMachine+" PrincipalSamName:"+$EventData.PrincipalSamName)
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-Kernel-PnP/Configuration
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Kernel-PnP/Configuration" ) -or ( $LogPath -match "Microsoft-Windows-Kernel-PnP" ) ){
+
+                                if ( $System.EventID -eq 400 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device has been configured","Parent:"+$EventData.ParentDeviceInstanceId+" --> "+$EventData.DeviceInstanceId+" ( "+$EventData.DriverProvider+" - "+$EventData.DriverName+" - "+$EventData.DriverDate+")")
+
+                                }
+
+                                if ( $System.EventID -eq 410 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device has been started","ServiceName:"+$EventData.ServiceName+" --> "+$EventData.DeviceInstanceId+" ( "+$EventData.DriverName+" )")
+
+                                }
+
+                                if ( $System.EventID -eq 420 ){
+
+                                    switch ( $EventData.Status ) {
+                                        "0x0" { $StatusStr = "Success" }
+                                        "0x1" { $StatusStr = "Error" }
+                                        Default { $StatusStr = "Error-"+$EventData.Status }
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device has been deleted",$EventData.DeviceInstanceId+" ( Status:"+$StatusStr+" - Problem:"+$EventData.Problem+" )")
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-PowerShell/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
 
