@@ -1105,6 +1105,33 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-Kernel-ShimEngine/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Kernel-ShimEngine/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Kernel-ShimEngine" ) ){
+
+                                if ( $System.EventID -eq 3 ){
+
+                                    Switch ( $EventData.ShimSource ) {
+                                        "0" { $SourceStr = "Registry" }
+                                        "1" { $SourceStr = "Compatibility database" }
+                                    }
+                                    # TODO : What are Shims ??
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$SourceStr+" shims applied to Driver","AppliedGuids:"+$EventData.AppliedGuids+" --> "+$EventData.DriverName)
+
+                                }
+
+                                if ( $System.EventID -eq 4 ){
+
+                                    Switch ( $EventData.FlagSource ) {
+                                        "0" { $SourceStr = "registry" }
+                                        "1" { $SourceStr = "compatibility database" }
+                                    }
+                                    # TODO : What are indicators ??
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$SourceStr+" indicators applied to device","Flags:"+$EventData.Flags+" DeviceName:"+$EventData.DeviceName)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-PowerShell/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
 
