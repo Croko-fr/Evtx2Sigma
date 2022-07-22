@@ -107,7 +107,57 @@ function ShowIfNull {
     } else {
         return $DataToCheck
     }
+
+}
+
+# Show "All" string when value is "*"
+function ShowIfAll {
+    param (
+        $DataToCheck
+    )
+    if ( "*" -eq $DataToCheck ) {
+        return "All"
+    } else {
+        return $DataToCheck
+    }
     
+}
+
+function FirewallProfile {
+    param (
+        [string]$StringToProcess
+    )
+    switch ( $StringToProcess ) {
+        2          { Return "Prive" }
+        4          { Return "Public" }
+        2147483649 { Return "Aucun"  }
+    }
+}
+
+function FirewallProtocol {
+    param (
+        [string]$StringToProcess
+    )
+
+    Switch ( $StringToProcess ) {
+        "0"    { Return "HOPOPT" }
+        "1"    { Return "ICMPv4" }
+        "2"    { Return "IGMP" }
+        "6"    { Return "TCP" }
+        "17"   { Return "UDP" }
+        "41"   { Return "IPv6" }
+        "43"   { Return "IPv6-Route" }
+        "44"   { Return "IPv6-Frag" }
+        "47"   { Return "GRE" }
+        "58"   { Return "ICMPv6" }
+        "59"   { Return "IPv6-NoNxt" }
+        "60"   { Return "IPv6-Opts" }
+        "112"  { Return "VRRP" }
+        "113"  { Return "PGM" }
+        "115"  { Return "L2TP" }
+        "256"  { Return "ALL" }
+        default { Return "NotFound" }
+    }
 }
 
 function Sanitize {
@@ -1148,6 +1198,53 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-Windows Firewall With Advanced Security/Firewall
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" ) -or ( $LogPath -match "Microsoft-Windows-Windows Firewall" ) ){
+
+                                # WARNING : RuleName is inconsistant between the EventIDs in this Log
+
+                                # A rule has been added to the exception list of the firewall
+                                if ( $System.EventID -eq 2004 ){
+
+                                    switch ( $EventData.Direction ) {
+                                        1 { $DirectionStr = "Incoming" }
+                                        2 { $DirectionStr = "Outgoing" }
+                                    }
+                                    # TODO : If ModifyingApplication -eq "C:\\Windows\\System32\\netsh.exe" --> Suspicious ???
+                                    # TODO : Mapping of $EventData.RuleId <--> $EventData.RuleName ( Real Name in MMC ) 
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Firewall rule created","RuleId:"+$EventData.RuleId+" User:"+$EventData.ModifyingUser+" Protocol:"+(FirewallProtocol $EventData.Protocol)+" Local ("+(ShowIfAll $EventData.LocalAddresses)+":"+(ShowIfAll $EventData.LocalPorts)+") Remote ("+(ShowIfAll $EventData.RemoteAddresses)+":"+(ShowIfAll $EventData.RemotePorts)+") "+$EventData.ModifyingApplication+" --> "+$EventData.ApplicationPath)
+
+                                }
+
+                                # A rule was changed in the exception list of the firewall
+                                if ( $System.EventID -eq 2005 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Firewall rule changed","RuleId:"+$EventData.RuleId+" User:"+$EventData.ModifyingUser+" Protocol:"+(FirewallProtocol $EventData.Protocol)+" Local ("+(ShowIfAll $EventData.LocalAddresses)+":"+(ShowIfAll $EventData.LocalPorts)+") Remote ("+(ShowIfAll $EventData.RemoteAddresses)+":"+(ShowIfAll $EventData.RemotePorts)+") "+$EventData.ModifyingApplication+" --> "+$EventData.ApplicationPath)
+
+                                }
+
+                                # A rule has been deleted in the exception list of the firewall
+                                if ( $System.EventID -eq 2006 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Firewall rule deleted","RuleId:"+$EventData.RuleId+" User:"+$EventData.ModifyingUser+" "+$EventData.ModifyingApplication)
+
+                                }
+
+                                # Network profile has changed on interface
+                                if ( $System.EventID -eq 2010 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Network profile changed","OldProfile:"+(FirewallProfile $EventData.OldProfile)+" NewProfile:"+(FirewallProfile $EventData.NewProfile)+" InterfaceName:"+$EventData.InterfaceName)
+
+                                }
+
+                                # Firewall was not able to notify user that he refused enterring connexion for an applicaion
+                                if ( $System.EventID -eq 2011 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Inbound connexion refused","PId:"+$EventData.ProcessId+" ModifyingUser:"+$EventData.ModifyingUser+" Protocol:"+(FirewallProtocol $EventData.Protocol)+" Port:"+$EventData.Port+" --> "+$EventData.ApplicationPath)
+
+                                }
+
+                            }
 
                             # Setup Log processing
                             if ( ( $LogSearch -eq "Setup" ) -or ( $LogPath -match "Setup" ) ){
@@ -1857,6 +1954,8 @@ function EvtxFilter {
                                     [TimeLine]::New($System.SystemTime,$System.Computer,"Winlogon Session : close","UserSid: "+$EventData.UserSid)
 
                                 }
+
+                                # TODO : 7045 New service was installed
 
                                 # Microsoft-Windows-UserPnp
                                 if ( $System.EventID -eq 20001 ){
