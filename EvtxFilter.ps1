@@ -1132,6 +1132,41 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-NcdAutoSetup/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-NcdAutoSetup/Operational" ) -or ( $LogPath -match "Microsoft-Windows-NcdAutoSetup" ) ){
+
+                                if ( $System.EventID -eq 4001 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device connected to network","Network:"+$EventData.String1+" Info:"+(ShowIfNull $EventData.String2))
+
+                                }
+
+                                if ( $System.EventID -eq 4002 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device connected to network","Network:"+$EventData.String1)
+
+                                }
+
+                                if ( $System.EventID -eq 5001 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Network qualified for autosetup","Network:"+$EventData.String1)
+
+                                }
+
+                                if ( $System.EventID -eq 5002 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Network disqualified for autosetup by category","Network:"+$EventData.String1)
+
+                                }
+
+                                if ( $System.EventID -eq 5005 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Network disqualified for autosetup by bits","Network:"+$EventData.String1+" Bits:"+$EventData.Integer1)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-PowerShell/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
 
