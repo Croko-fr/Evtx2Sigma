@@ -1202,6 +1202,17 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-NTLM/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-NTLM/Operational" ) -or ( $LogPath -match "Microsoft-Windows-NTLM" ) ){
+
+                                if ( $System.EventID -eq 4001 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Outgoing NTLM authentication blocked","("+$EventData.ClientDomainName+"\"+$EventData.ClientUserName+") CallerPID:"+$System.CallerPID+" ProcessName:"+$EventData.ProcessName+" --> ("+$EventData.ClientDomainName+"\"+$EventData.ClientUserName+") "+$EventData.TargetName)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-PowerShell/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
 
