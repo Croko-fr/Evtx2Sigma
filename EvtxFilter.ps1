@@ -1167,6 +1167,41 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-NetworkProfile/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-NetworkProfile/Operational" ) -or ( $LogPath -match "Microsoft-Windows-NetworkProfile" ) ){
+
+                                if ( $System.EventID -eq 10000 ){
+
+                                    switch ( $EventData.Category ) {
+                                        0 { $NetworkCategoryMap = "Public" }
+                                        1 { $NetworkCategoryMap = "Private" }
+                                        2 { $NetworkCategoryMap = "Domain Authenticated" }
+                                    }
+                                    switch ( $EventData.Type ) {
+                                        0 { $NetworkTypeStr = "Unmanaged" }
+                                        1 { $NetworkTypeStr = "Managed" }
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Network connected","State:"+$EventData.State+" Category:"+$NetworkCategoryMap+" Type:"+$NetworkTypeStr+" Network:"+$EventData.Name+" --> "+$EventData.Description)
+
+                                }
+
+                                if ( $System.EventID -eq 10001 ){
+
+                                    switch ( $EventData.Category ) {
+                                        0 { $NetworkCategoryMap = "Public" }
+                                        1 { $NetworkCategoryMap = "Private" }
+                                        2 { $NetworkCategoryMap = "Domain Authenticated" }
+                                    }
+                                    switch ( $EventData.Type ) {
+                                        0 { $NetworkTypeStr = "Unmanaged" }
+                                        1 { $NetworkTypeStr = "Managed" }
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Network disconnected","State:"+$EventData.State+" Category:"+$NetworkCategoryMap+" Type:"+$NetworkTypeStr+" Network:"+$EventData.Name+" --> "+$EventData.Description)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-PowerShell/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
 
