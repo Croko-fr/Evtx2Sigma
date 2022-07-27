@@ -1264,6 +1264,23 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-StateRepository/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-StateRepository/Operational" ) -or ( $LogPath -match "Microsoft-Windows-StateRepository" ) ){
+
+                                if ( $System.EventID -eq 105 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Informations","PID:"+$System.ProcessID+" ErrorCode:"+$EventData.ErrorCode+" --> "+$EventData.SQL)
+
+                                }
+
+                                if ( $System.EventID -eq 267 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Integrity of referential done","PID:"+$System.ProcessID+" ErrorCode:"+$EventData.SQL+" --> "+$EventData.Filename)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-PowerShell/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
 
