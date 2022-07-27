@@ -1253,6 +1253,17 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-Shell-Core/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Shell-Core/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Shell-Core" ) ){
+
+                                if ( $System.EventID -eq 9705 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Explorer EnumeratingRunKeyStart","PID:"+$System.ProcessID+" UserID:"+$System.UserID+" --> "+$EventData.KeyName)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-PowerShell/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
 
