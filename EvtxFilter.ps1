@@ -1224,6 +1224,35 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-Security-Mitigations/KernelMode
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Security-Mitigations/KernelMode" ) -or ( $LogPath -match "Microsoft-Windows-Security-Mitigations" ) ){
+
+                                if ( $System.EventID -eq 1 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Prohibit dynamic code - Always","CallingProcessId:"+$EventData.CallingProcessId+" "+$EventData.ProcessPath+" --> "+$EventData.ProcessCommandLine)
+
+                                }
+
+                                if ( $System.EventID -eq 2 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Prohibit dynamic code - Warning","CallingProcessId:"+$EventData.CallingProcessId+" "+$EventData.ProcessPath+" --> "+$EventData.ProcessCommandLine)
+
+                                }
+
+                                if ( $System.EventID -eq 3 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Prohibit child process creation - Always","CallingProcessId:"+$EventData.CallingProcessId+" "+$EventData.ProcessCommandLine+" --> "+$EventData.ChildCommandLine)
+
+                                }
+
+                                if ( $System.EventID -eq 10 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Prohibit win32k system calls - Warning","CallingProcessId:"+$EventData.CallingProcessId+" "+$EventData.ProcessPath+" --> "+$EventData.ProcessCommandLine)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-PowerShell/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
 
