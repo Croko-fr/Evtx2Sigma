@@ -1213,6 +1213,17 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-Partition/Diagnostic
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Partition/Diagnostic" ) -or ( $LogPath -match "Microsoft-Windows-Partition" ) ){
+
+                                if ( $System.EventID -eq 1006 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Diagnostic internal use only","DiskNumber:"+$EventData.DiskNumber+" Model:"+$EventData.Model+" SN:"+$EventData.SerialNumber+" Revision:"+$EventData.Revision)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-PowerShell/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
 
