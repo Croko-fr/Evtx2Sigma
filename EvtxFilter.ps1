@@ -1281,6 +1281,35 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-StorageSpaces-Driver/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-StorageSpaces-Driver/Operational" ) -or ( $LogPath -match "Microsoft-Windows-StorageSpaces-Driver" ) ){
+
+                                if ( $System.EventID -eq 207 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Physical disk arrived",$EventData.DriveModel+" --> "+$EventData.DriveSerial)
+
+                                }
+
+                            }
+
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Storage-Storport/Operational" ) -or ( $LogPath -match "Storage-Storport" ) ){
+
+                                # Device was surprise removed
+                                if ( $System.EventID -eq 551 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device was removed","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+$EventData.SerialNumber.Replace(" ",""))
+
+                                }
+
+                                # Device has arrived
+                                if ( $System.EventID -eq 552 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device has arrived","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+$EventData.SerialNumber.Replace(" ",""))
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-PowerShell/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
 
@@ -1856,26 +1885,6 @@ function EvtxFilter {
                                 }
 
                             }
-
-
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Storage-Storport/Operational" ) -or ( $LogPath -match "Storage-Storport" ) ){
-
-                                # Device was surprise removed
-                                if ( $System.EventID -eq 551 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device was removed","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+$EventData.SerialNumber.Replace(" ",""))
-
-                                }
-
-                                # Device has arrived
-                                if ( $System.EventID -eq 552 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device has arrived","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+$EventData.SerialNumber.Replace(" ",""))
-
-                                }
-
-                            }
-
 
                             if ( ( $LogSearch -match "Sysmon" ) -or ( $LogPath -match "Sysmon" ) ){
 
