@@ -1436,6 +1436,31 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-TerminalServices-RDPClient/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-TerminalServices-RDPClient/Operational" ) -or ( $LogPath -match "Microsoft-Windows-TerminalServices-RDPClient" ) ){
+
+                                if ( $System.EventID -eq 1024 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"RDPClient connexion attempt",$EventData.Name+" --> "+$EventData.Value)
+
+                                }
+
+                                # TODO : Connexion successfull only ?
+                                if ( $System.EventID -eq 1027 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"RDPClient valid domain ?","SessionId:"+$EventData.SessionId+" --> "+$EventData.DomainName)
+
+                                }
+
+                                # TODO : Connexion successfull only ?
+                                if ( $System.EventID -eq 1102 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"RDPClient valid Address ?",$EventData.Name+" --> "+$EventData.Value)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Firewall With Advanced Security/Firewall
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" ) -or ( $LogPath -match "Microsoft-Windows-Windows Firewall" ) ){
 
