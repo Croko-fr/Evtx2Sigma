@@ -1461,6 +1461,24 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-Time-Service/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Time-Service/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Time-Service" ) ){
+
+                                if ( $System.EventID -eq 261 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Time has been set",$EventData.OldTime+" --> "+$EventData.NewTime)
+
+                                }
+
+                                if ( $System.EventID -eq 264 ){
+
+                                    $AllNtpServersStr =  (($EventData.AllNtpServers).Replace(";","")).Replace(","," - ")
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Time server accessibility change","NtpServers:"+$AllNtpServersStr)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Firewall With Advanced Security/Firewall
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" ) -or ( $LogPath -match "Microsoft-Windows-Windows Firewall" ) ){
 
