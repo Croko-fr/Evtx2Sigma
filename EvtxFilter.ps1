@@ -1224,6 +1224,19 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-PowerShell/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
+
+                                if ( $System.EventID -eq 4104 ){
+
+                                    # TODO : Reconstruct powershell script
+                                    # ScriptBlockText : contains the Powershell script part
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Scriptblock text creation","PID:"+$System.ProcessID+" Message: "+$EventData.MessageNumber+"/"+$EventData.MessageTotal+" Id:"+$EventData.ScriptBlockId+" --> "+$EventData.Path)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Security-Mitigations/KernelMode
                             if ( ( $LogSearch -eq "Microsoft-Windows-Security-Mitigations/KernelMode" ) -or ( $LogPath -match "Microsoft-Windows-Security-Mitigations" ) ){
 
@@ -1259,65 +1272,6 @@ function EvtxFilter {
                                 if ( $System.EventID -eq 9705 ){
 
                                     [TimeLine]::New($System.SystemTime,$System.Computer,"Explorer EnumeratingRunKeyStart","PID:"+$System.ProcessID+" UserID:"+$System.UserID+" --> "+$EventData.KeyName)
-
-                                }
-
-                            }
-
-                            # Microsoft-Windows-StateRepository/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-StateRepository/Operational" ) -or ( $LogPath -match "Microsoft-Windows-StateRepository" ) ){
-
-                                if ( $System.EventID -eq 105 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Informations","PID:"+$System.ProcessID+" ErrorCode:"+$EventData.ErrorCode+" --> "+$EventData.SQL)
-
-                                }
-
-                                if ( $System.EventID -eq 267 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Integrity of referential done","PID:"+$System.ProcessID+" ErrorCode:"+$EventData.SQL+" --> "+$EventData.Filename)
-
-                                }
-
-                            }
-
-                            # Microsoft-Windows-StorageSpaces-Driver/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-StorageSpaces-Driver/Operational" ) -or ( $LogPath -match "Microsoft-Windows-StorageSpaces-Driver" ) ){
-
-                                if ( $System.EventID -eq 207 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Physical disk arrived",$EventData.DriveModel+" --> "+$EventData.DriveSerial)
-
-                                }
-
-                            }
-
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Storage-Storport/Operational" ) -or ( $LogPath -match "Storage-Storport" ) ){
-
-                                # Device was surprise removed
-                                if ( $System.EventID -eq 551 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device was removed","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+$EventData.SerialNumber.Replace(" ",""))
-
-                                }
-
-                                # Device has arrived
-                                if ( $System.EventID -eq 552 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device has arrived","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+$EventData.SerialNumber.Replace(" ",""))
-
-                                }
-
-                            }
-
-                            # Microsoft-Windows-PowerShell/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
-
-                                if ( $System.EventID -eq 4104 ){
-
-                                    # TODO : Reconstruct powershell script
-                                    # ScriptBlockText : contains the Powershell script part
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Scriptblock text creation","PID:"+$System.ProcessID+" Message: "+$EventData.MessageNumber+"/"+$EventData.MessageTotal+" Id:"+$EventData.ScriptBlockId+" --> "+$EventData.Path)
 
                                 }
 
@@ -1398,6 +1352,85 @@ function EvtxFilter {
 
                                     # TODO: Find real description
                                     [TimeLine]::New($System.SystemTime,$System.Computer,"Netbios Smb","("+$UserData.DomainName+"\"+$UserData.Name+") TransportName:"+$UserData.TransportName+" TransportFlags:"+$UserData.TransportFlags)
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-StateRepository/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-StateRepository/Operational" ) -or ( $LogPath -match "Microsoft-Windows-StateRepository" ) ){
+
+                                if ( $System.EventID -eq 105 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Informations","PID:"+$System.ProcessID+" ErrorCode:"+$EventData.ErrorCode+" --> "+$EventData.SQL)
+
+                                }
+
+                                if ( $System.EventID -eq 267 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Integrity of referential done","PID:"+$System.ProcessID+" ErrorCode:"+$EventData.SQL+" --> "+$EventData.Filename)
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-StorageSpaces-Driver/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-StorageSpaces-Driver/Operational" ) -or ( $LogPath -match "Microsoft-Windows-StorageSpaces-Driver" ) ){
+
+                                if ( $System.EventID -eq 207 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Physical disk arrived",$EventData.DriveModel+" --> "+$EventData.DriveSerial)
+
+                                }
+
+                            }
+
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Storage-Storport/Operational" ) -or ( $LogPath -match "Storage-Storport" ) ){
+
+                                # Device was surprise removed
+                                if ( $System.EventID -eq 551 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device was removed","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+$EventData.SerialNumber.Replace(" ",""))
+
+                                }
+
+                                # Device has arrived
+                                if ( $System.EventID -eq 552 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device has arrived","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+$EventData.SerialNumber.Replace(" ",""))
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-TerminalServices-LocalSessionManager/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational" ) -or ( $LogPath -match "Microsoft-Windows-TerminalServices-LocalSessionManager" ) ){
+
+                                # Session opened successfully
+                                if ( $System.EventID -eq 21 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Session opened successfully","("+$UserData.User+") SessionID:"+$UserData.SessionID+" --> "+$UserData.Address)
+
+                                }
+
+                                # Session closed successfully
+                                if ( $System.EventID -eq 23 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Session closed successfully","("+$UserData.User+") SessionID:"+$UserData.SessionID)
+
+                                }
+
+                                # Session disconnected successfully
+                                if ( $System.EventID -eq 24 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Session disconnected successfully","("+$UserData.User+") SessionID:"+$UserData.SessionID+" --> "+$UserData.Address)
+
+                                }
+
+                                # Session reconnected successfully
+                                if ( $System.EventID -eq 25 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Session reconnected successfully","("+$UserData.User+") SessionID:"+$UserData.SessionID+" --> "+$UserData.Address)
 
                                 }
 
