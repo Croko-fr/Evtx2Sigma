@@ -1633,6 +1633,67 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-WLAN-AutoConfig/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-WLAN-AutoConfig/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WLAN-AutoConfig" ) ){
+
+                                if ( $System.EventID -eq 8000 ){
+
+                                    if ( $EventData.SSID -eq $EventData.ProfileName ) {
+                                        $SSIDTypeStr = "Client"
+                                    } else {
+                                        $SSIDTypeStr = "Access Point"
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Wifi "+$SSIDTypeStr+" connexion started","PID:"+$System.ProcessID+" SSID:"+$EventData.SSID)
+
+                                }
+
+                                if ( $System.EventID -eq 8001 ){
+
+                                    if ( $EventData.SSID -eq $EventData.ProfileName ) {
+                                        $SSIDTypeStr = "Client"
+                                    } else {
+                                        $SSIDTypeStr = "Access Point"
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Wifi "+$SSIDTypeStr+" connected","PID:"+$System.ProcessID+" SSID:"+$EventData.SSID+" Auth:"+$EventData.AuthenticationAlgorithm+"/"+$EventData.CipherAlgorithm)
+
+                                }
+
+                                if ( $System.EventID -eq 8002 ){
+
+                                    if ( $EventData.SSID -eq $EventData.ProfileName ) {
+                                        $SSIDTypeStr = "Client"
+                                    } else {
+                                        $SSIDTypeStr = "Access Point"
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Wifi "+$SSIDTypeStr+" connexion failure","PID:"+$System.ProcessID+" SSID:"+$EventData.SSID+" --> "+$EventData.FailureReason)
+
+                                }
+
+                                if ( $System.EventID -eq 8003 ){
+
+                                    if ( $EventData.SSID -eq $EventData.ProfileName ) {
+                                        $SSIDTypeStr = "Client"
+                                    } else {
+                                        $SSIDTypeStr = "Access Point"
+                                    }
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Wifi "+$SSIDTypeStr+" disconnected","PID:"+$System.ProcessID+" SSID:"+$EventData.SSID+" --> "+$EventData.Reason)
+
+                                }
+
+                                if ( $System.EventID -eq 20019 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Wifi Access Point associated client","PID:"+$System.ProcessID+" SSID:"+$EventData.SSID+"("+$EventData.LocalMAC+") --> PeerMAC:"+$EventData.PeerMAC)
+
+                                }
+
+                                if ( $System.EventID -eq 20021 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Wifi Access Point client failed auth","PID:"+$System.ProcessID+" SSID:"+$EventData.SSID+"("+$EventData.LocalMAC+") --> "+$EventData.ErrorMsg)
+
+                                }
+
+                            }
+
                             # Setup Log processing
                             if ( ( $LogSearch -eq "Setup" ) -or ( $LogPath -match "Setup" ) ){
 
