@@ -1007,41 +1007,6 @@ function EvtxFilter {
 
                             }
 
-                            # Microsoft-Windows-Windows Defender/Operational Log processing
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Windows Defender" ) ){
-
-                                if ( $System.EventID -eq 1009 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AV Restore from Quarantaine","("+$EventData.Domain+"\"+$EventData.User+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
-
-                                }
-
-                                if ( $System.EventID -eq 1011 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AV Suppress from Quarantaine","("+$EventData.Domain+"\"+$EventData.User+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
-
-                                }
-
-                                if ( $System.EventID -eq 1013 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AV History Deleted","("+$EventData.Domain+"\"+$EventData.User+") "+$EventData.Timestamp)
-
-                                }
-
-                                if ( $System.EventID -eq 1116 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AV Threat Detection","("+$EventData."Detection User"+" --> "+$EventData."Process Name"+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
-
-                                }
-
-                                if ( $System.EventID -eq 1117 ){
-
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"AV Action : "+$EventData."Action Name","("+$EventData."Detection User"+" --> "+$EventData."Process Name"+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
-
-                                }
-
-                            }
-                            
                             # Microsoft-Windows-EapMethods-RasChap/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-EapMethods-RasChap/Operational" ) -or ( $LogPath -match "Microsoft-Windows-EapMethods-RasChap" ) ){
 
@@ -1551,6 +1516,41 @@ function EvtxFilter {
                                 if ( $System.EventID -eq 260 ){
 
                                     [TimeLine]::New($System.SystemTime,$System.Computer,"Font load attempt","PID:"+$System.ProcessID+" Blocked:"+$EventData.Blocked+" "+$EventData.SourceProcessName+" --> "+$EventData.FontSourcePath)
+
+                                }
+
+                            }
+
+                            # Microsoft-Windows-Windows Defender/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Windows Defender" ) ){
+
+                                if ( $System.EventID -eq 1009 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Defender Restore from Quarantaine","("+$EventData.Domain+"\"+$EventData.User+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
+
+                                }
+
+                                if ( $System.EventID -eq 1011 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Defender Suppress from Quarantaine","("+$EventData.Domain+"\"+$EventData.User+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
+
+                                }
+
+                                if ( $System.EventID -eq 1013 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Defender History Deleted","("+$EventData.Domain+"\"+$EventData.User+") "+$EventData.Timestamp)
+
+                                }
+
+                                if ( $System.EventID -eq 1116 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Defender Threat Detection","("+$EventData."Detection User"+" --> "+$EventData."Process Name"+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
+
+                                }
+
+                                if ( $System.EventID -eq 1117 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Defender Action : "+$EventData."Action Name","("+$EventData."Detection User"+" --> "+$EventData."Process Name"+") "+$EventData."Threat Name"+" --> "+$EventData.Path)
 
                                 }
 
