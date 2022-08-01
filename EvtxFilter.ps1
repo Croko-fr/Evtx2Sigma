@@ -1517,6 +1517,23 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-VHDMP-Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-VHDMP-Operational" ) -or ( $LogPath -match "Microsoft-Windows-VHDMP-Operational" ) ){
+
+                                if ( $System.EventID -eq 1 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Virtual Disk load","PID:"+$System.ProcessID+" VhdDiskNumber:"+$EventData.VhdDiskNumber+" --> "+$EventData.VhdFileName)
+
+                                }
+
+                                if ( $System.EventID -eq 2 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Virtual disk unload","PID:"+$System.ProcessID+" VhdDiskNumber:"+$EventData.VhdDiskNumber+" --> "+$EventData.VhdFileName)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Firewall With Advanced Security/Firewall
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" ) -or ( $LogPath -match "Microsoft-Windows-Windows Firewall" ) ){
 
