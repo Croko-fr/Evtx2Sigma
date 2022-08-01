@@ -1479,6 +1479,27 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-User Device Registration/Admin
+                            if ( ( $LogSearch -eq "Microsoft-Windows-User Device Registration/Admin" ) -or ( $LogPath -match "Microsoft-Windows-User Device Registration" ) ){
+
+                                if ( $System.EventID -eq 101 ){
+
+                                    $ServerMessageJson = ConvertFrom-Json $EventData.ServerMessage
+                                    $ServerMessageStr = "Tenant:"+$ServerMessageJson.TenantInfo.TenantId+"/"+$ServerMessageJson.TenantInfo.TenantName+" --> "+$ServerMessageJson.DeviceManagementService.DeviceManagementResourceId
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Discovery callback was successful","PID:"+$System.ProcessID+" "+$ServerMessageStr)
+
+                                }
+
+                                if ( $System.EventID -eq 104 ){
+
+                                    $ServerResponseJson = ConvertFrom-Json $EventData.ServerResponse
+                                    $ServerResponseStr = "User:"+$ServerResponseJson.User.Upn
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Join response callback was successful",$ServerResponseStr)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Firewall With Advanced Security/Firewall
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" ) -or ( $LogPath -match "Microsoft-Windows-Windows Firewall" ) ){
 
