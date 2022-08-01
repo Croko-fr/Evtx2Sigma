@@ -1500,6 +1500,23 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-User Profile Service/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-User Profile Service/Operational" ) -or ( $LogPath -match "Microsoft-Windows-User Profile Service" ) ){
+
+                                if ( $System.EventID -eq 5 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"User Profile hive loading","PID:"+$System.ProcessID+" File:"+$EventData.File+" --> "+$EventData.Key)
+
+                                }
+
+                                if ( $System.EventID -eq 67 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"User Profile type","PID:"+$System.ProcessID+" LocalPath:"+$EventData.LocalPath+" LogonType:"+$EventData.LogonType+" ProfileType:"+$EventData.ProfileType)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Firewall With Advanced Security/Firewall
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" ) -or ( $LogPath -match "Microsoft-Windows-Windows Firewall" ) ){
 
