@@ -1694,6 +1694,17 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-WPD-MTPClassDriver/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-WPD-MTPClassDriver/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WPD-MTPClassDriver" ) ){
+
+                                if ( $System.EventID -eq 1005 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"MTP driver configured","PID:"+$System.ProcessID+" Manufacturer:"+$EventData.Manufacturer+" Model:"+$EventData.Model+" Version:"+$EventData.Version)
+
+                                }
+
+                            }
+
                             # Setup Log processing
                             if ( ( $LogSearch -eq "Setup" ) -or ( $LogPath -match "Setup" ) ){
 
