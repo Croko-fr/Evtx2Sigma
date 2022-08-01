@@ -1604,6 +1604,35 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-WindowsUpdateClient/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-WindowsUpdateClient/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WindowsUpdateClient" ) ){
+
+                                if ( $System.EventID -eq 25 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"WindowsUpdate : An error occured while download","PID:"+$System.ProcessID+" errorCode:"+$EventData.errorCode)
+
+                                }
+
+                                if ( $System.EventID -eq 26 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"WindowsUpdate : found update(s)","PID:"+$System.ProcessID+" updateCount:"+$EventData.updateCount)
+
+                                }
+
+                                if ( $System.EventID -eq 31 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"WindowsUpdate : failed to download an update","PID:"+$System.ProcessID+" errorCode:"+$EventData.errorCode+" updateRevisionNumber:"+$EventData.updateRevisionNumber+" --> "+$EventData.updateTitle)
+
+                                }
+
+                                if ( $System.EventID -eq 41 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"WindowsUpdate : update download","PID:"+$System.ProcessID+" updateRevisionNumber:"+$EventData.updateRevisionNumber+" --> "+$EventData.updateTitle)
+
+                                }
+
+                            }
+
                             # Setup Log processing
                             if ( ( $LogSearch -eq "Setup" ) -or ( $LogPath -match "Setup" ) ){
 
