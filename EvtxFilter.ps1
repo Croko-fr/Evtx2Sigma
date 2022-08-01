@@ -1545,6 +1545,17 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-Win32k/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Win32k/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Win32k" ) ){
+
+                                if ( $System.EventID -eq 260 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Font load attempt","PID:"+$System.ProcessID+" Blocked:"+$EventData.Blocked+" "+$EventData.SourceProcessName+" --> "+$EventData.FontSourcePath)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Firewall With Advanced Security/Firewall
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" ) -or ( $LogPath -match "Microsoft-Windows-Windows Firewall" ) ){
 
