@@ -1534,6 +1534,17 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-WER-PayloadHealth/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-WER-PayloadHealth/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WER-PayloadHealth" ) ){
+
+                                if ( $System.EventID -eq 1 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Wer payload health upload","PID:"+$System.ProcessID+" Protocol:"+$EventData.Protocol+" Stage:"+$EventData.Stage+" --> "+$EventData.ServerName+" ("+$EventData.BytesUploaded+"/"+$EventData.PayloadSize+")")
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-Windows Firewall With Advanced Security/Firewall
                             if ( ( $LogSearch -eq "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" ) -or ( $LogPath -match "Microsoft-Windows-Windows Firewall" ) ){
 
