@@ -1705,6 +1705,35 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-WMI-Activity/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-WMI-Activity/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WMI-Activity" ) ){
+
+                                if ( $System.EventID -eq 5857 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Provider has started","PID:"+$UserData.ProcessID+" Code:"+$UserData.Code+" Name:"+$UserData.ProviderName+" - "+$UserData.HostProcess+" --> "+$UserData.ProviderPath)
+
+                                }
+
+#                                if ( $System.EventID -eq 5858 ){
+#
+#                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Provider error : "+$UserData.PossibleCause,"("+$UserData.User+") PId:"+$UserData.ClientProcessId+" "+$UserData.ClientMachine+" --> "+$UserData.Operation)
+#
+#                                }
+
+                                if ( $System.EventID -eq 5859 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Provider request : "+$UserData.PossibleCause,"("+$UserData.User+") PId:"+$UserData.Processid+" "+$UserData.Provider+" - "+$UserData.NamespaceName+" --> "+$UserData.Query)
+
+                                }
+
+                                if ( $System.EventID -eq 5860 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Provider request : "+$UserData.PossibleCause,"("+$UserData.User+") PId:"+$UserData.Processid+" "+$UserData.ClientMachine+" - "+$UserData.NamespaceName+" --> "+$UserData.Query)
+
+                                }
+
+                            }
+
                             # Setup Log processing
                             if ( ( $LogSearch -eq "Setup" ) -or ( $LogPath -match "Setup" ) ){
 
