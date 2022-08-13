@@ -132,13 +132,13 @@ Online version: https://www.github.com/croko-fr/Evtx2Sigma
 
 ### .TODO
 
-- [ ] Add security log results in TimeLine class format
-- [ ] Add more logs for Timeline
 - [ ] Find a way to handle options better
 - [ ] Split project in mutliple one ?
 
 ### .DONE
 
+- [x] Add security log results in TimeLine class format
+- [x] Add more logs for Timeline
 - [x] Add more EventID for Security logs => Most of them are here
 - [x] Find a way to speed the request => **Powershell 7** with ForEach optimisation
 - [x] Fix Search with Evtx files input
