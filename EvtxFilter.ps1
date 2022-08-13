@@ -1770,6 +1770,13 @@ function EvtxFilter {
 
                                 }
 
+                                # The system time was changed
+                                if ( $System.EventID -eq 4616 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : The system time was changed","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+$System.ProcessId+" "+$EventData.ProcessName+" - "+$EventData.PreviousTime+" --> "+$EventData.NewTime)
+
+                                }
+
                                 # A security package has been loaded by the Local Security Authority
                                 if ( $System.EventID -eq 4622 ){
 
@@ -2037,6 +2044,13 @@ function EvtxFilter {
 
                                 }
 
+                                # A member was added to a security-enabled global group
+                                if ( $System.EventID -eq 4728 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A member added to global group","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+[uint32]$System.ProcessID+" --> "+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+" ("+$EventData.TargetSid+")")
+
+                                }
+
                                 # A member was added to a security-enabled local group
                                 if ( $System.EventID -eq 4732 ){
 
@@ -2117,7 +2131,14 @@ function EvtxFilter {
                                 # The screen saver was invoked
                                 if ( $System.EventID -eq 4802 ){
 
-                                    ($System.SystemTime+";"+$System.Computer+";"+$System.EventID+";"+$Event.TaskDisplayName+";"+$System.ProcessID+";"+$EventData.TargetDomainName+";"+$EventData.TargetUserName+";"+$EventData.SessionId)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : The screen saver was invoked","("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") SessionId:"+$EventData.SessionId)
+
+                                }
+
+                                # The screen saver was dismissed
+                                if ( $System.EventID -eq 4803 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : The screen saver was dismissed","("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") SessionId:"+$EventData.SessionId)
 
                                 }
 
