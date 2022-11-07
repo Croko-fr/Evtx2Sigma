@@ -386,7 +386,7 @@ function EvtxFilter {
             "LogPath" {
                         Try {
                             $null = Test-Path -Path $LogPath -ErrorAction Stop
-                            $FullLogPath = Resolve-Path $LogPath 
+                            $FullLogPath = Resolve-Path $LogPath -ErrorAction Stop
                             Write-Host "[+] Searching EventLog : $FullLogPath"
                             $XmlQuery = "<QueryList> <Query Id='0' Path='file://$FullLogPath'> <Select Path='file://$FullLogPath'> "
                             $Request = "Get-WinEvent -Path '$FullLogPath'"
@@ -550,6 +550,7 @@ function EvtxFilter {
 
         } else {
 
+            Write-Debug "[+] Matching events found"
             Write-Host "[+]"$Events.Count"matching event found."
 
             ForEach ( $Event in $Events ) {
@@ -782,6 +783,8 @@ function EvtxFilter {
                     } else {
 
                         if ( $PSBoundParameters.ContainsKey('ConvertToTimeLine') -eq $true ) {
+
+                                Write-Debug "[+] ConvertToTimeline : $LogPath"
 
                             # Microsoft-Windows-AppID/Operational
                             if ( ( $LogSearch -eq "Microsoft-Windows-AppID/Operational" ) -or ( $LogPath -match "Microsoft-Windows-AppID" ) ){
@@ -1749,6 +1752,15 @@ function EvtxFilter {
                             # Security Log processing
                             if ( ( $LogSearch -eq "Security" ) -or ( $LogPath -match "Security" ) ){
 
+                                Write-Debug "[+] Security Log matched"
+
+                                # The audit log was cleared
+                                if ( $System.EventID -eq 1102 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : The audit log was cleared","("+$UserData.SubjectDomainName+"\"+$UserData.SubjectUserName+") PId:"+$System.ProcessID)
+
+                                }
+
                                 # An authentication package has been loaded by the Local Security Authority
                                 if ( $System.EventID -eq 4610 ){
 
@@ -2079,6 +2091,13 @@ function EvtxFilter {
 
                                 }
 
+                                # The computer attempted to validate the credentials for an account
+                                if ( $System.EventID -eq 4776 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Computer attempted to validate the credentials for an account","("+$EventData.TargetUserName+") Workstation:"+$EventData.Workstation+" PackageName:"+$EventData.PackageName+" Status:"+$EventData.Status)
+
+                                }
+
                                 # A session was reconnected to a Window Station
                                 if ( $System.EventID -eq 4778 ){
 
@@ -2160,6 +2179,13 @@ function EvtxFilter {
                                 if ( $System.EventID -eq 5061 ){
                                     # Operation needs human traduction
                                     [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Cryptographic operation","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PID:"+$System.ProcessID+" KeyName:"+$EventData.KeyName+" AlgorithmName:"+$EventData.AlgorithmName)
+
+                                }
+
+                                # A network share object was checked to see whether client can be granted desired access.
+                                if ( $System.EventID -eq 5145 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : Acces granted to a network share object","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") ClientPId:"+$EventData.ProcessID+" ObjectType:"+$EventData.ObjectType+" From:"+$EventData.IpAddress+":"+$EventData.IpPort+" --> "+$EventData.ShareName+$EventData.ShareLocalPath+" ("+$EventData.RelativeTargetName+")")
 
                                 }
 
