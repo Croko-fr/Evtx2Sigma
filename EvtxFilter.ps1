@@ -1836,7 +1836,7 @@ function EvtxFilter {
                                 if ( $System.EventID -eq 4656 ){
 
                                     # TODO: Generate such event
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A handle to an object was requested",$System.ProcessID+";"+$EventData.ObjectServer+";"+$EventData.ObjectType+";"+$EventData.HandleId+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName+";"+$EventData.ObjectName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A handle to an object was requested","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" HandleId:"+$EventData.HandleId+" "+$EventData.ProcessName+" --> "+$EventData.ObjectName)
 
                                 }
 
@@ -1852,7 +1852,7 @@ function EvtxFilter {
                                 if ( $System.EventID -eq 4658 ){
 
                                     # TODO: Generate such event
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : The handle to an object was closed",$System.ProcessID+";"+$EventData.ObjectServer+";"+$EventData.HandleId+";"+$EventData.SubjectDomainName+";"+$EventData.SubjectUserName+";"+$EventData.ProcessId+";"+$EventData.ProcessName)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : The handle to an object was closed","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" HandleId:"+$EventData.HandleId+" "+$EventData.ProcessName)
 
                                 }
 
@@ -1909,7 +1909,17 @@ function EvtxFilter {
                                 # A new process has been created
                                 if ( $System.EventID -eq 4688 ){
 
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A new process has been created","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ParentProcessName+" ("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") "+[uint32]$EventData.NewProcessId+" "+$EventData.NewProcessName+" --> "+$EventData.CommandLine)
+                                    if ( $null -ne $EventData.CommandLine ) {
+                                        $ProcessInfo = $EventData.CommandLine
+                                    }else{
+                                        $ProcessInfo = $EventData.NewProcessName
+                                    }
+                                    if ( $EventData.TargetDomainName."\".$EventData.TargetUserName -ne "-/-" ) {
+                                        [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A new process has been created","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ParentProcessName+" --> ("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") "+[uint32]$EventData.NewProcessId+" "+$ProcessInfo)
+
+                                    } else {
+                                        [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : A new process has been created","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.ProcessId+" "+$EventData.ParentProcessName+" --> "+[uint32]$EventData.NewProcessId+" "+$ProcessInfo)
+                                    }
 
                                 }
 
@@ -1923,8 +1933,7 @@ function EvtxFilter {
                                 # An attempt was made to duplicate a handle to an object
                                 if ( $System.EventID -eq 4690 ){
 
-                                    # TODO : Generate such event
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : handle duplication attempt","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.SourceProcessId+";"+$EventData.SourceHandleId+";"+[uint32]$EventData.TargetProcessId+";"+$EventData.TargetHandleId)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : handle duplication attempt","("+$EventData.SubjectDomainName+"\"+$EventData.SubjectUserName+") PId:"+[uint32]$EventData.SourceProcessId+" SourceHandleId:"+$EventData.SourceHandleId+" --> "+[uint32]$EventData.TargetProcessId+" TargetHandleId:"+$EventData.TargetHandleId)
 
                                 }
 
