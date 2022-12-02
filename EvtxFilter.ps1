@@ -46,15 +46,15 @@ PS> EvtxFilter -LogSearch Security -Field "ProcessId" -NotFieldValue "5924"
 
 .EXAMPLE
 Search `Security` log and shows **only one** event corresponding to selected **EventId**.
-PS> EvtxFilter -LogSearch 'Security' -EventId 4624 -OnlyOne
+PS> EvtxFilter -LogSearch 'Security' -EventId 4624 -EventLimit 1
 
 .EXAMPLE
 Search `Security` log for an event corresponding to selected **EventId** and shows **only one** event as **a SIGMA rule**.
-PS> EvtxFilter -LogSearch 'Security' -EventId 4624 -OnlyOne -ConvertToSigma
+PS> EvtxFilter -LogSearch 'Security' -EventId 4624 -EventLimit 1 -ConvertToSigma
 
 .EXAMPLE
 Search `Security` log for an event corresponding to selected **EventId** and outputs **only one** event as **a SIGMA rule** writen in the **OutDir** `./results/`.
-PS> EvtxFilter -LogSearch 'Security' -EventId 4624 -OnlyOne -ConvertToSigma -OutDir ./results/
+PS> EvtxFilter -LogSearch 'Security' -EventId 4624 -EventLimit 1 -ConvertToSigma -OutDir ./results/
 
 .EXAMPLE
 Search `Security` log for all events corresponding to selected **EventId** and outputs **all events** as **SIGMA rules** writen in the **OutDir** `./results/`.
@@ -80,6 +80,112 @@ Online version: https://www.github.com/croko-fr/Evtx2Sigma
 #>
 
 
+function GetCoveredEventIDs {
+    param (
+        [String]$Search
+    )
+    
+    $array = @(
+        @{Name = 'Microsoft-Windows-AppID/Operational';EventIDs = "4004"}
+        @{Name = 'Microsoft-Windows-AppID%4Operational.evtx';EventIDs = "4004"}
+        @{Name = 'Microsoft-Windows-Application-Experience/Program-Compatibility-Assistant';EventIDs = "17,8002,8005,8007,8020,8023"},
+        @{Name = 'Microsoft-Windows-Application-Experience%4Program-Compatibility-Assistant.evtx';EventIDs = "17,8002,8005,8007,8020,8023"},
+        @{Name = 'Microsoft-Windows-AppXDeploymentServer/Operational';EventIDs = "821"},
+        @{Name = 'Microsoft-Windows-AppXDeployment%4Operational.evtx';EventIDs = "821"},
+        @{Name = 'Microsoft-Windows-Audio/Operational';EventIDs = "65"},
+        @{Name = 'Microsoft-Windows-Audio%4Operational.evtx';EventIDs = "65"},
+        @{Name = 'Microsoft-Windows-Bits-Client/Operational';EventIDs = "3,4,59,16403"},
+        @{Name = 'Microsoft-Windows-Bits-Client%4Operational.evtx';EventIDs = "3,4,59,16403"},
+        @{Name = 'Microsoft-Windows-CodeIntegrity/Operational';EventIDs = "3033,3089"},
+        @{Name = 'Microsoft-Windows-CodeIntegrity%4Operational.evtx';EventIDs = "3033,3089"},
+        @{Name = 'Microsoft-Windows-Crypto-DPAPI/Operational';EventIDs = "12289"},
+        @{Name = 'Microsoft-Windows-Crypto-DPAPI%4Operational.evtx';EventIDs = "12289"},
+        @{Name = 'Microsoft-Windows-Dhcp-Client/Admin';EventIDs = "50066,50067"},
+        @{Name = 'Microsoft-Windows-Dhcp-Client%4Admin.evtx';EventIDs = "50066,50067"},
+        @{Name = 'Microsoft-Windows-Diagnostics-Networking/Operational';EventIDs = "1000"},
+        @{Name = 'Microsoft-Windows-Diagnostics-Networking%4Operational.evtx';EventIDs = "1000"},
+        @{Name = 'Microsoft-Windows-Diagnostics-Performance/Operational';EventIDs = "100,103,109,200,203"},
+        @{Name = 'Microsoft-Windows-Diagnostics-Performance%4Operational.evtx';EventIDs = "100,103,109,200,203"},
+        @{Name = 'Microsoft-Windows-DNSServer/Audit';EventIDs = "519"},
+        @{Name = 'Microsoft-Windows-DNSServer%4Audit.evtx';EventIDs = "519"},
+        @{Name = 'Microsoft-Windows-EapMethods-RasChap/Operational';EventIDs = "100,107"},
+        @{Name = 'Microsoft-Windows-EapMethods-RasChap%4Operational.evtx';EventIDs = "100,107"},
+        @{Name = 'Microsoft-Windows-GroupPolicy/Operational';EventIDs = "8004,8005"},
+        @{Name = 'Microsoft-Windows-GroupPolicy%4Operational.evtx';EventIDs = "8004,8005"},
+        @{Name = 'Microsoft-Windows-Kernel-PnP/Configuration';EventIDs = "400,410,420"},
+        @{Name = 'Microsoft-Windows-Kernel-PnP%4Configuration.evtx';EventIDs = "400,410,420"},
+        @{Name = 'Microsoft-Windows-Kernel-ShimEngine/Operational';EventIDs = "3,4"},
+        @{Name = 'Microsoft-Windows-Kernel-ShimEngine%4Operational.evtx';EventIDs = "3,4"},
+        @{Name = 'Microsoft-Windows-NcdAutoSetup/Operational';EventIDs = "4001,4002,5001,5002,5005"},
+        @{Name = 'Microsoft-Windows-NcdAutoSetup%4Operational.evtx';EventIDs = "4001,4002,5001,5002,5005"},
+        @{Name = 'Microsoft-Windows-NetworkProfile/Operational';EventIDs = "10000,10001"},
+        @{Name = 'Microsoft-Windows-NetworkProfile%4Operational.evtx';EventIDs = "10000,10001"},
+        @{Name = 'Microsoft-Windows-NTLM/Operational';EventIDs = "4001"},
+        @{Name = 'Microsoft-Windows-NTLM%4Operational.evtx';EventIDs = "4001"},
+        @{Name = 'Microsoft-Windows-Partition/Diagnostic';EventIDs = "1006"},
+        @{Name = 'Microsoft-Windows-Partition%4Diagnostic.evtx';EventIDs = "1006"},
+        @{Name = 'Microsoft-Windows-PowerShell/Operational';EventIDs = "4104"},
+        @{Name = 'Microsoft-Windows-PowerShell%4Operational.evtx';EventIDs = "4104"},
+        @{Name = 'Microsoft-Windows-Security-Mitigations/KernelMode';EventIDs = "1,2,3,10"},
+        @{Name = 'Microsoft-Windows-Security-Mitigations%4KernelMode.evtx';EventIDs = "1,2,3,10"},
+        @{Name = 'Microsoft-Windows-Shell-Core/Operational';EventIDs = "9705"},
+        @{Name = 'Microsoft-Windows-Shell-Core%4Operational.evtx';EventIDs = "9705"},
+        @{Name = 'Microsoft-Windows-SmbClient/Connectivity';EventIDs = "30800,30803,30810,30811,30812,30813"},
+        @{Name = 'Microsoft-Windows-SmbClient%4Connectivity.evtx';EventIDs = "30800,30803,30810,30811,30812,30813"},
+        @{Name = 'Microsoft-Windows-SmbClient/Security';EventIDs = "31001"},
+        @{Name = 'Microsoft-Windows-SmbClient%4Security.evtx';EventIDs = "31001"},
+        @{Name = 'Microsoft-Windows-SMBServer/Operational';EventIDs = "1010"},
+        @{Name = 'Microsoft-Windows-SMBServer%4Operational.evtx';EventIDs = "1010"},
+        @{Name = 'Microsoft-Windows-StateRepository/Operational';EventIDs = "105,267"},
+        @{Name = 'Microsoft-Windows-StateRepository%4Operational.evtx';EventIDs = "105,267"},
+        @{Name = 'Microsoft-Windows-StorageSpaces-Driver/Operational';EventIDs = "207"},
+        @{Name = 'Microsoft-Windows-StorageSpaces-Driver%4Operational.evtx';EventIDs = "207"},
+        @{Name = 'Microsoft-Windows-Storage-Storport/Operational';EventIDs = "551,552"},
+        @{Name = 'Microsoft-Windows-Storage-Storport%4Operational.evtx';EventIDs = "551,552"},
+        @{Name = 'Microsoft-Windows-TerminalServices-LocalSessionManager/Operational';EventIDs = "21,23,24,25"},
+        @{Name = 'Microsoft-Windows-TerminalServices-LocalSessionManager%4Operational.evtx';EventIDs = "21,23,24,25"},
+        @{Name = 'Microsoft-Windows-TerminalServices-RDPClient/Operational';EventIDs = "1024,1027,1102"},
+        @{Name = 'Microsoft-Windows-TerminalServices-RDPClient%4Operational.evtx';EventIDs = "1024,1027,1102"},
+        @{Name = 'Microsoft-Windows-Time-Service/Operational';EventIDs = "261,264"},
+        @{Name = 'Microsoft-Windows-Time-Service%4Operational.evtx';EventIDs = "261,264"},
+        @{Name = 'Microsoft-Windows-User Device Registration/Admin';EventIDs = "101,104"},
+        @{Name = 'Microsoft-Windows-User Device Registration%4Admin.evtx';EventIDs = "101,104"},
+        @{Name = 'Microsoft-Windows-User Profile Service/Operational';EventIDs = "5,67"},
+        @{Name = 'Microsoft-Windows-User Profile Service%4Operational.evtx';EventIDs = "5,67"},
+        @{Name = 'Microsoft-Windows-VHDMP-Operational';EventIDs = "1,2"},
+        @{Name = 'Microsoft-Windows-VHDMP-Operational.evtx';EventIDs = "1,2"},
+        @{Name = 'Microsoft-Windows-WER-PayloadHealth/Operational';EventIDs = "1"},
+        @{Name = 'Microsoft-Windows-WER-PayloadHealth%4Operational.evtx';EventIDs = "1"},
+        @{Name = 'Microsoft-Windows-Win32k/Operational';EventIDs = "260"},
+        @{Name = 'Microsoft-Windows-Win32k%4Operational.evtx';EventIDs = "260"},
+        @{Name = 'Microsoft-Windows-Windows Defender/Operational';EventIDs = "1009,1011,1013,1116,1117"},
+        @{Name = 'Microsoft-Windows-Windows Defender%4Operational.evtx';EventIDs = "1009,1011,1013,1116,1117"},
+        @{Name = 'Microsoft-Windows-Windows Firewall With Advanced Security/Firewall';EventIDs = "2004,2005,2006,2010,2011"},
+        @{Name = 'Microsoft-Windows-Windows Firewall With Advanced Security%4Firewall.evtx';EventIDs = "2004,2005,2006,2010,2011"},
+        @{Name = 'Microsoft-Windows-WindowsUpdateClient/Operational';EventIDs = "25,26,31,41"},
+        @{Name = 'Microsoft-Windows-WindowsUpdateClient%4Operational.evtx';EventIDs = "25,26,31,41"},
+        @{Name = 'Microsoft-Windows-WLAN-AutoConfig/Operational';EventIDs = "8000,8001,8002,8003,20019,20021"},
+        @{Name = 'Microsoft-Windows-WLAN-AutoConfig%4Operational.evtx';EventIDs = "8000,8001,8002,8003,20019,20021"},
+        @{Name = 'Microsoft-Windows-WPD-MTPClassDriver/Operational';EventIDs = "1005"},
+        @{Name = 'Microsoft-Windows-WPD-MTPClassDriver%4Operational.evtx';EventIDs = "1005"},
+        @{Name = 'Microsoft-Windows-WMI-Activity/Operational';EventIDs = "5857,5858,5859,5860"},
+        @{Name = 'Microsoft-Windows-WMI-Activity%4Operational.evtx';EventIDs = "5857,5858,5859,5860"},
+        @{Name = 'Setup';EventIDs = "4"},
+        @{Name = 'Setup.evtx';EventIDs = "4"},
+        @{Name = 'System';EventIDs = "8,19,26,44,98,104,1014,7001,7002,7045,20001,20003"},
+        @{Name = 'System.evtx';EventIDs = "8,19,26,44,98,104,1014,7001,7002,7045,20001,20003"}
+    )
+
+    try {
+        return ($array | Where-Object { $_.Name -eq "$Search" }).EventIDs
+    }
+    catch {
+        return ""
+    }
+    
+}
+
+
 # TimeLine Object class to get a clear output that will allow Out-GridView format
 class TimeLine {
 
@@ -96,6 +202,7 @@ class TimeLine {
     }
 
 }
+
 
 # Show "Null" string when desired if $null
 function ShowIfNull {
@@ -286,7 +393,6 @@ function AdminWarning {
 
 }
 
-
 function AdminRequired {
 
     Write-Host "[+] Checking for Required elevated permissions..."
@@ -334,7 +440,7 @@ function EvtxFilter {
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
         [Parameter( ParameterSetName="RawSearch" )]
-        [Switch] $OnlyOne,
+        [String] $EventLimit,
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
         [Switch] $ConvertToSigma,
@@ -358,9 +464,11 @@ function EvtxFilter {
         [String] $CatalogFile = "EventId_List_Full_sort_uniq.txt",
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
-        [Switch] $ConvertToTimeLine = $false
+        [Switch] $ConvertToTimeLine = $false,
+        [bool] $IncidentResponse = $true
     )
 
+    $StartTime = get-date 
 
     Write-Host "     _____       _         _____ _ _ _            "
     Write-Host "    | ____|_   _| |___  __|  ___(_) | |_ ___ _ __ "
@@ -373,6 +481,8 @@ function EvtxFilter {
 
 
     ForEach ( $Parameter in $PSBoundParameters.GetEnumerator() ) {
+
+        #$PSBoundParameters.GetEnumerator()
 
         Switch ( $Parameter.Key ) {
 
@@ -437,10 +547,10 @@ function EvtxFilter {
                                 Write-Host "[+] Storing SIGMA rules in directory : $OutDir"
                                 ForEach ( $SearchId in $ListOfEventId.Id ) {
                                     If ( $PSBoundParameters.ContainsKey('LogSearch') ) {
-                                        EvtxFilter -LogSearch $LogSearch -EventId $SearchId -OnlyOne -ConvertToSigma -OutDir $OutDir
+                                        EvtxFilter -LogSearch $LogSearch -EventId $SearchId -EventLimit 1 -ConvertToSigma -OutDir $OutDir
                                     }
                                     If ( $PSBoundParameters.ContainsKey('LogPath') ) {
-                                        EvtxFilter -LogPath $LogPath -EventId $SearchId -OnlyOne -ConvertToSigma -OutDir $OutDir
+                                        EvtxFilter -LogPath $LogPath -EventId $SearchId -EventLimit 1 -ConvertToSigma -OutDir $OutDir
                                     }
                                 }            
                             }
@@ -525,7 +635,25 @@ function EvtxFilter {
                 } else {
                     if ( $FieldQuery ) { $XmlQuery += $FieldQuery }
                     if ( $TimeFrameQuery ) { $XmlQuery += $TimeFrameQuery }
-                    if ( -not $FieldQuery -and -not $TimeFrameQuery ) { $XmlQuery += "*" }
+                    if ( -not $FieldQuery -and -not $TimeFrameQuery ) { 
+                        # Covered EventID only
+                        if ( $LogSearch -ne "" ) { $SearchString = $LogSearch.Split("/")[-1] }
+                        if ( $LogPath -ne ""   ) { $SearchString = $LogPath.Split("\")[-1] }
+                        Write-Host "[+] SearchString : $SearchString"
+                        if ( $null -ne (GetCoveredEventIDs $SearchString) ) {
+                            if ( $Ids = (GetCoveredEventIDs $SearchString).split(",") ) {
+                                $XmlQuery += "*[System[EventID=" + $Ids[0]
+                                for ($i=1; $i -lt $Ids.Count; $i++) {
+                                    $XmlQuery += " or EventID=" + $Ids[$i]
+                                }
+                                $XmlQuery += "]]"
+                            } else {
+                                $XmlQuery = "*[System[EventID=$EventId]]"
+                            }
+                        } else {
+                            $XmlQuery += "*"
+                        }
+                    }
                 }
             }
         }
@@ -534,13 +662,13 @@ function EvtxFilter {
 
         Write-Debug "[+] XPath query : $XmlQuery"
 
-        if ( $PSBoundParameters.ContainsKey('OnlyOne') ) {
-            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -MaxEvent 1 -ErrorAction SilentlyContinue | Sort-Object TimeCreated -Descending'
+        if ( $PSBoundParameters.ContainsKey('EventLimit') ) {
+            $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -MaxEvent ' + $EventLimit + ' -ErrorAction SilentlyContinue | Sort-Object TimeCreated -Descending'
         } else {
             $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -ErrorAction SilentlyContinue | Sort-Object TimeCreated -Descending'
         }
         
-        Write-Debug "[+] Launching XPath REQUEST : $Request"
+        Write-Host "[+] Launching XPath REQUEST : $Request"
 
         $Events = Invoke-Expression $Request
 
@@ -751,7 +879,7 @@ function EvtxFilter {
 
                     }
 
-                    If ( $PSBoundParameters.ContainsKey('OnlyOne') ) { 
+                    If ( $PSBoundParameters.ContainsKey('EventLimit') ) { 
 
                         $FileName = $OutDir+"\Windows_EventLog_"+$System.Provider_Name+"_"+$System.EventId+"_"+($Description.Replace(".","")).Replace(" ","_")
 
@@ -1010,7 +1138,18 @@ function EvtxFilter {
 
                             }
 
-                            # Microsoft-Windows-EapMethods-RasChap/Operational
+                            # Microsoft-Windows-DNSServer/Audit
+                            if ( ( $LogSearch -eq "Microsoft-Windows-DNSServer/Audit" ) -or ( $LogPath -match "Microsoft-Windows-DNSServer" ) ){
+
+                                if ( $System.EventID -eq 519 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"DNS resolution","Zone:"+$EventData.Zone+" Name:"+$EventData.NAME+" Source:"+$EventData.Source)
+
+                                }
+
+                            } # Microsoft-Windows-DNSServer/Audit
+
+                            # Microsoft-Windows-GroupPolicy
                             if ( ( $LogSearch -eq "Microsoft-Windows-EapMethods-RasChap/Operational" ) -or ( $LogPath -match "Microsoft-Windows-EapMethods-RasChap" ) ){
 
                                 if ( $System.EventID -eq 100 ){
@@ -1199,7 +1338,7 @@ function EvtxFilter {
 
                                     # TODO : Reconstruct powershell script
                                     # ScriptBlockText : contains the Powershell script part
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Scriptblock text creation","PID:"+$System.ProcessID+" Message: "+$EventData.MessageNumber+"/"+$EventData.MessageTotal+" Id:"+$EventData.ScriptBlockId+" --> "+$EventData.Path)
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Scriptblock text creation","PID:"+$System.ProcessID+" Message: "+$EventData.MessageNumber+"/"+$EventData.MessageTotal+" Id:"+$EventData.ScriptBlockId+" --> "+$EventData.ScriptBlockText)
 
                                 }
 
@@ -1353,19 +1492,20 @@ function EvtxFilter {
 
                             }
 
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Storage-Storport/Operational" ) -or ( $LogPath -match "Storage-Storport" ) ){
+                            # Microsoft-Windows-Storage-Storport/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Storage-Storport/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Storage-Storport%4Operational.evtx" ) ){
 
                                 # Device was surprise removed
                                 if ( $System.EventID -eq 551 ){
 
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device was removed","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+$EventData.SerialNumber.Replace(" ",""))
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device was removed","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+(ShowIfNull $EventData.SerialNumber).Replace(" ",""))
 
                                 }
 
                                 # Device has arrived
                                 if ( $System.EventID -eq 552 ){
 
-                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device has arrived","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+$EventData.SerialNumber.Replace(" ",""))
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Device has arrived","("+$EventData.MiniportName+" Port "+$EventData.PortNumber+") "+$EventData.VendorId.Replace(" ","")+" "+$EventData.ProductId.Replace(" ","")+" - "+(ShowIfNull $EventData.SerialNumber).Replace(" ",""))
 
                                 }
 
@@ -1820,7 +1960,6 @@ function EvtxFilter {
                                 # An account was logged off
                                 if ( $System.EventID -eq 4634 ){
 
-                                    # TODO : User <--> UserSid mapping : $EventData.TargetDomainName+"\"+$EventData.TargetUserName+" <--> "+$EventData.TargetUserSid
                                     [TimeLine]::New($System.SystemTime,$System.Computer,$System.EventID+" : An account was logged off","("+$EventData.TargetDomainName+"\"+$EventData.TargetUserName+") LogonType:"+$EventData.LogonType)
 
                                 }
@@ -2225,7 +2364,8 @@ function EvtxFilter {
 
                             }
 
-                            if ( ( $LogSearch -match "Sysmon" ) -or ( $LogPath -match "Sysmon" ) ){
+                            # Microsoft-Windows-Sysmon/Operational
+                            if ( ( $LogSearch -match "Microsoft-Windows-Sysmon/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Sysmon%4Operational.evtx" ) ){
 
                                 # Process Create
                                 if ( $System.EventID -eq 1 ){
@@ -2479,7 +2619,12 @@ function EvtxFilter {
 
                                 }
 
-                                # TODO : 7045 New service was installed
+                                # Service Control Manager
+                                if ( $System.EventID -eq 7045 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"New service was installed","Type:"+$EventData.ServiceType+" Name:"+$EventData.ServiceName+" --> "+$EventData.ImagePath+" ("+$EventData.StartType+")")
+
+                                }
 
                                 # Microsoft-Windows-UserPnp
                                 if ( $System.EventID -eq 20001 ){
@@ -2520,5 +2665,11 @@ function EvtxFilter {
         } # End If Event.Count -gt 0
 
     }
+
+    $RunTime = New-TimeSpan -Start $StartTime -End (get-date) 
+    Write-Host ""
+    Write-Host "[+] ---------------------------------------------------------------------"
+    $TimeSpend  = "Execution time was {0} hours, {1} minutes, {2} seconds and {3} milliseconds." -f $RunTime.Hours,  $RunTime.Minutes,  $RunTime.Seconds,  $RunTime.Milliseconds  
+    Write-Host "$TimeSpend" -ForegroundColor Green
 
 }
