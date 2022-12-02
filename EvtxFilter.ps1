@@ -464,8 +464,7 @@ function EvtxFilter {
         [String] $CatalogFile = "EventId_List_Full_sort_uniq.txt",
         [Parameter( ParameterSetName="LogSearch" )]
         [Parameter( ParameterSetName="LogPath" )]
-        [Switch] $ConvertToTimeLine = $false,
-        [bool] $IncidentResponse = $true
+        [Switch] $ConvertToTimeLine = $false
     )
 
     $StartTime = get-date 
@@ -639,7 +638,7 @@ function EvtxFilter {
                         # Covered EventID only
                         if ( $LogSearch -ne "" ) { $SearchString = $LogSearch.Split("/")[-1] }
                         if ( $LogPath -ne ""   ) { $SearchString = $LogPath.Split("\")[-1] }
-                        Write-Host "[+] SearchString : $SearchString"
+                        Write-Debug "[+] SearchString : $SearchString"
                         if ( $null -ne (GetCoveredEventIDs $SearchString) ) {
                             if ( $Ids = (GetCoveredEventIDs $SearchString).split(",") ) {
                                 $XmlQuery += "*[System[EventID=" + $Ids[0]
@@ -668,7 +667,7 @@ function EvtxFilter {
             $Request = 'Get-WinEvent -FilterXml "' + $XmlQuery + '" -ErrorAction SilentlyContinue | Sort-Object TimeCreated -Descending'
         }
         
-        Write-Host "[+] Launching XPath REQUEST : $Request"
+        Write-Debug "[+] Launching XPath REQUEST : $Request"
 
         $Events = Invoke-Expression $Request
 
@@ -915,7 +914,7 @@ function EvtxFilter {
                                 Write-Debug "[+] ConvertToTimeline : $LogPath"
 
                             # Microsoft-Windows-AppID/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-AppID/Operational" ) -or ( $LogPath -match "Microsoft-Windows-AppID" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-AppID/Operational" ) -or ( $LogPath -match "Microsoft-Windows-AppID%4Operational.evtx" ) ){
 
                                 # File signing verification
                                 if ( $System.EventID -eq 4004 ){
@@ -985,7 +984,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-AppXDeploymentServer/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-AppXDeploymentServer/Operational" ) -or ( $LogPath -match "Microsoft-Windows-AppXDeploymentServer" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-AppXDeploymentServer/Operational" ) -or ( $LogPath -match "Microsoft-Windows-AppXDeploymentServer%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 821 ){
 
@@ -997,7 +996,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-Audio/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Audio/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Audio" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Audio/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Audio%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 65 ){
 
@@ -1012,7 +1011,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-Bits-Client/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Bits-Client/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Bits-Client" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Bits-Client/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Bits-Client%4Operational.evtx" ) ){
 
                                 # Bits task launched by process
                                 if ( $System.EventID -eq 3 ){
@@ -1045,7 +1044,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-CodeIntegrity/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-CodeIntegrity/Operational" ) -or ( $LogPath -match "Microsoft-Windows-CodeIntegrity" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-CodeIntegrity/Operational" ) -or ( $LogPath -match "Microsoft-Windows-CodeIntegrity%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 3033 ){
 
@@ -1062,7 +1061,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-Crypto-DPAPI/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Crypto-DPAPI/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Crypto-DPAPI" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Crypto-DPAPI/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Crypto-DPAPI%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 12289 ){
 
@@ -1093,7 +1092,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-Diagnostics-Networking/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Diagnostics-Networking/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Diagnostics-Networking" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Diagnostics-Networking/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Diagnostics-Networking%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 1000 ){
 
@@ -1104,7 +1103,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-Diagnostics-Performance/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Diagnostics-Performance/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Diagnostics-Performance" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Diagnostics-Performance/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Diagnostics-Performance%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 100 ){
 
@@ -1139,7 +1138,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-DNSServer/Audit
-                            if ( ( $LogSearch -eq "Microsoft-Windows-DNSServer/Audit" ) -or ( $LogPath -match "Microsoft-Windows-DNSServer" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-DNSServer/Audit" ) -or ( $LogPath -match "Microsoft-Windows-DNSServer%4Audit.evtx" ) ){
 
                                 if ( $System.EventID -eq 519 ){
 
@@ -1149,8 +1148,8 @@ function EvtxFilter {
 
                             } # Microsoft-Windows-DNSServer/Audit
 
-                            # Microsoft-Windows-GroupPolicy
-                            if ( ( $LogSearch -eq "Microsoft-Windows-EapMethods-RasChap/Operational" ) -or ( $LogPath -match "Microsoft-Windows-EapMethods-RasChap" ) ){
+                            # Microsoft-Windows-EapMethods-RasChap/Operational
+                            if ( ( $LogSearch -eq "Microsoft-Windows-EapMethods-RasChap/Operational" ) -or ( $LogPath -match "Microsoft-Windows-EapMethods-RasChap%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 100 ){
 
@@ -1167,7 +1166,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-GroupPolicy/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-GroupPolicy/Operational" ) -or ( $LogPath -match "Microsoft-Windows-GroupPolicy" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-GroupPolicy/Operational" ) -or ( $LogPath -match "Microsoft-Windows-GroupPolicy%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 8004 ){
 
@@ -1213,7 +1212,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-Kernel-ShimEngine/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Kernel-ShimEngine/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Kernel-ShimEngine" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Kernel-ShimEngine/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Kernel-ShimEngine%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 3 ){
 
@@ -1240,7 +1239,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-NcdAutoSetup/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-NcdAutoSetup/Operational" ) -or ( $LogPath -match "Microsoft-Windows-NcdAutoSetup" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-NcdAutoSetup/Operational" ) -or ( $LogPath -match "Microsoft-Windows-NcdAutoSetup%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 4001 ){
 
@@ -1275,7 +1274,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-NetworkProfile/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-NetworkProfile/Operational" ) -or ( $LogPath -match "Microsoft-Windows-NetworkProfile" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-NetworkProfile/Operational" ) -or ( $LogPath -match "Microsoft-Windows-NetworkProfile%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 10000 ){
 
@@ -1310,7 +1309,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-NTLM/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-NTLM/Operational" ) -or ( $LogPath -match "Microsoft-Windows-NTLM" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-NTLM/Operational" ) -or ( $LogPath -match "Microsoft-Windows-NTLM%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 4001 ){
 
@@ -1332,7 +1331,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-PowerShell/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-PowerShell/Operational" ) -or ( $LogPath -match "Microsoft-Windows-PowerShell%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 4104 ){
 
@@ -1374,7 +1373,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-Shell-Core/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Shell-Core/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Shell-Core" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Shell-Core/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Shell-Core%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 9705 ){
 
@@ -1453,7 +1452,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-SMBServer/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-SMBServer/Operational" ) -or ( $LogPath -match "Microsoft-Windows-SMBServer" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-SMBServer/Operational" ) -or ( $LogPath -match "Microsoft-Windows-SMBServer%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 1010 ){
 
@@ -1465,7 +1464,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-StateRepository/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-StateRepository/Operational" ) -or ( $LogPath -match "Microsoft-Windows-StateRepository" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-StateRepository/Operational" ) -or ( $LogPath -match "Microsoft-Windows-StateRepository%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 105 ){
 
@@ -1482,7 +1481,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-StorageSpaces-Driver/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-StorageSpaces-Driver/Operational" ) -or ( $LogPath -match "Microsoft-Windows-StorageSpaces-Driver" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-StorageSpaces-Driver/Operational" ) -or ( $LogPath -match "Microsoft-Windows-StorageSpaces-Driver%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 207 ){
 
@@ -1512,7 +1511,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-TerminalServices-LocalSessionManager/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational" ) -or ( $LogPath -match "Microsoft-Windows-TerminalServices-LocalSessionManager" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational" ) -or ( $LogPath -match "Microsoft-Windows-TerminalServices-LocalSessionManager%4Operational.evtx" ) ){
 
                                 # Session opened successfully
                                 if ( $System.EventID -eq 21 ){
@@ -1545,7 +1544,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-TerminalServices-RDPClient/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-TerminalServices-RDPClient/Operational" ) -or ( $LogPath -match "Microsoft-Windows-TerminalServices-RDPClient" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-TerminalServices-RDPClient/Operational" ) -or ( $LogPath -match "Microsoft-Windows-TerminalServices-RDPClient%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 1024 ){
 
@@ -1570,7 +1569,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-Time-Service/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Time-Service/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Time-Service" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Time-Service/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Time-Service%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 261 ){
 
@@ -1609,7 +1608,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-User Profile Service/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-User Profile Service/Operational" ) -or ( $LogPath -match "Microsoft-Windows-User Profile Service" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-User Profile Service/Operational" ) -or ( $LogPath -match "Microsoft-Windows-User Profile Service%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 5 ){
 
@@ -1626,7 +1625,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-VHDMP-Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-VHDMP-Operational" ) -or ( $LogPath -match "Microsoft-Windows-VHDMP-Operational" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-VHDMP-Operational" ) -or ( $LogPath -match "Microsoft-Windows-VHDMP-Operational%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 1 ){
 
@@ -1643,7 +1642,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-WER-PayloadHealth/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-WER-PayloadHealth/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WER-PayloadHealth" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-WER-PayloadHealth/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WER-PayloadHealth%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 1 ){
 
@@ -1654,7 +1653,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-Win32k/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Win32k/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Win32k" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Win32k/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Win32k%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 260 ){
 
@@ -1665,7 +1664,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-Windows Defender/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Windows Defender" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-Windows Defender/Operational" ) -or ( $LogPath -match "Microsoft-Windows-Windows Defender%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 1009 ){
 
@@ -1748,7 +1747,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-WindowsUpdateClient/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-WindowsUpdateClient/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WindowsUpdateClient" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-WindowsUpdateClient/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WindowsUpdateClient%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 25 ){
 
@@ -1777,7 +1776,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-WLAN-AutoConfig/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-WLAN-AutoConfig/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WLAN-AutoConfig" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-WLAN-AutoConfig/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WLAN-AutoConfig%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 8000 ){
 
@@ -1838,7 +1837,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-WPD-MTPClassDriver/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-WPD-MTPClassDriver/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WPD-MTPClassDriver" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-WPD-MTPClassDriver/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WPD-MTPClassDriver%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 1005 ){
 
@@ -1849,7 +1848,7 @@ function EvtxFilter {
                             }
 
                             # Microsoft-Windows-WMI-Activity/Operational
-                            if ( ( $LogSearch -eq "Microsoft-Windows-WMI-Activity/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WMI-Activity" ) ){
+                            if ( ( $LogSearch -eq "Microsoft-Windows-WMI-Activity/Operational" ) -or ( $LogPath -match "Microsoft-Windows-WMI-Activity%4Operational.evtx" ) ){
 
                                 if ( $System.EventID -eq 5857 ){
 
