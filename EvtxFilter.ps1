@@ -1562,6 +1562,214 @@ function EvtxFilter {
 
                             }
 
+                            # Microsoft-Windows-TaskScheduler/Operational
+                            if ( $System.Channel -eq "Microsoft-Windows-TaskScheduler/Operational" ) {
+
+                                # Task Scheduler started instance
+                                if ( $System.EventID -eq 100 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task Scheduler started instance","InstanceId:"+$EventData.InstanceId+" --> "+$EventData.TaskName+" ("+(ShowIfNull $EventData.UserContext)+")")
+
+                                }
+
+                                # Task Scheduler could not start task
+                                if ( $System.EventID -eq 101 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task Scheduler could not start task","TaskName:"+$EventData.TaskName+" ResultCode:"+$EventData.ResultCode+" ("+(ShowIfNull $EventData.UserContext)+")")
+
+                                }
+
+                                # Task Scheduler terminated instance
+                                if ( $System.EventID -eq 102 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task Scheduler terminated instance","InstanceId:"+$EventData.InstanceId+" --> "+$EventData.TaskName+" ("+(ShowIfNull $EventData.UserContext)+")")
+
+                                }
+                                
+                                # Task Scheduler failed to start instance
+                                if ( $System.EventID -eq 103 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task Scheduler failed to start instance","InstanceId:"+$EventData.InstanceId+" --> "+$EventData.TaskName+" ResultCode:"+$EventData.ResultCode+" ("+(ShowIfNull $EventData.UserContext)+")")
+
+                                }
+
+                                # User registered task
+                                if ( $System.EventID -eq 106 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"User registered task","TaskName:"+$EventData.TaskName+" ("+(ShowIfNull $EventData.UserContext)+")")
+
+                                }
+
+                                # Task Scheduler launched instance due to a time trigger condition.
+                                if ( $System.EventID -eq 107 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task launched due to a time trigger condition","InstanceId:"+$EventData.InstanceId+" TaskName:"+$EventData.TaskName)
+
+                                }
+
+                                # Task Scheduler launched instance based on a time trigger
+                                if ( $System.EventID -eq 108 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task launched based on a time trigger","InstanceId:"+$EventData.InstanceId+" TaskName:"+$EventData.TaskName+" ("+$EventData.UserContext+")")
+
+                                }
+
+                                # Task instance stopped
+                                if ( $System.EventID -eq 110 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task instance stopped","InstanceId:"+$EventData.InstanceId+" TaskName:"+$EventData.TaskName+" ("+$EventData.UserContext+")")
+
+                                }
+
+                                # Task instance launched
+                                if ( $System.EventID -eq 111 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task instance launched","InstanceId:"+$EventData.InstanceId+" TaskName:"+$EventData.TaskName)
+
+                                }
+
+                                # Task instance launched
+                                if ( $System.EventID -eq 114 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task instance launched","InstanceId:"+$EventData.InstanceId+" TaskName:"+$EventData.TaskName)
+
+                                }
+
+                                # Task instance launched
+                                if ( $System.EventID -eq 118 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task instance launched","InstanceId:"+$EventData.InstanceId+" TaskName:"+$EventData.TaskName)
+
+                                }
+
+                                # Launching instance at user logon
+                                if ( $System.EventID -eq 119 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Launching instance at user logon","InstanceId:"+$EventData.InstanceId+" TaskName:"+$EventData.TaskName+" ("+$EventData.UserName+")")
+
+                                }
+
+                                # Task Scheduler launched the task
+                                if ( $System.EventID -eq 129 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task Scheduler launched the task","TaskName:"+$EventData.TaskName+" --> PID:"+$EventData.ProcessID+" Path:"+$EventData.Path)
+
+                                }
+
+                                # A user updated the task
+                                if ( $System.EventID -eq 140 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"A user updated the task","TaskName:"+$EventData.TaskName+" UserName:"+$EventData.UserName)
+
+                                }
+
+                                # A user deleted the task
+                                if ( $System.EventID -eq 141 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"A user deleted the task","TaskName:"+$EventData.TaskName+" UserName:"+$EventData.UserName)
+
+                                }
+
+                                # A user disabled the task
+                                if ( $System.EventID -eq 141 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"A user disabled the task","TaskName:"+$EventData.TaskName+" UserName:"+$EventData.UserName)
+
+                                }
+
+                                # The task missed his schedule
+                                if ( $System.EventID -eq 141 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"The task missed his schedule","TaskName:"+$EventData.TaskName)
+
+                                }
+
+                                # Task Scheduler started the action
+                                if ( $System.EventID -eq 200 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task Scheduler started the action","TaskInstanceId:"+$EventData.TaskInstanceId+" TaskName:"+$EventData.TaskName+" --> PID:"+$EventData.EnginePID+" ActionName:"+$EventData.ActionName)
+
+                                }
+
+                                # Task Scheduler completed the task
+                                if ( $System.EventID -eq 201 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task Scheduler completed the task","TaskInstanceId:"+$EventData.TaskInstanceId+" TaskName:"+$EventData.TaskName+" --> PID:"+$EventData.EnginePID+" ActionName:"+$EventData.ActionName+" ResultCode:"+$EventData.ResultCode)
+
+                                }
+
+                                # Task Scheduler could not complete the task
+                                if ( $System.EventID -eq 202 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task Scheduler could not complete the task","TaskInstanceId:"+$EventData.TaskInstanceId+" TaskName:"+$EventData.TaskName+" --> PID:"+$EventData.EnginePID+" ActionName:"+$EventData.ActionName+" ResultCode:"+$EventData.ResultCode)
+
+                                }
+
+                                # The task has not been launched : already in progress
+                                if ( $System.EventID -eq 322 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"The task has not been launched : already in progress","TaskInstanceId:"+$EventData.TaskInstanceId+" TaskName:"+$EventData.TaskName)
+
+                                }
+
+                                # Instance has been suspended
+                                if ( $System.EventID -eq 324 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Instance has been suspended","QueuedTaskInstanceId:"+$EventData.QueuedTaskInstanceId+" TaskName:"+$EventData.TaskName+" --> RunningTaskInstanceId:"+$EventData.RunningTaskInstanceId)
+
+                                }
+
+                                # Instance has been queued
+                                if ( $System.EventID -eq 325 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Instance has been queued","QueuedTaskInstanceId:"+$EventData.QueuedTaskInstanceId+" TaskName:"+$EventData.TaskName)
+
+                                }
+
+                                # Instance interruption : time exceeded
+                                if ( $System.EventID -eq 325 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Instance interruption : time exceeded","TaskInstanceId:"+$EventData.TaskInstanceId+" TaskName:"+$EventData.TaskName)
+
+                                }
+
+                                # Instance stopped by user
+                                if ( $System.EventID -eq 330 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Instance stopped by user","TaskInstanceId:"+$EventData.TaskInstanceId+" TaskName:"+$EventData.TaskName)
+
+                                }
+
+                                # Task Scheduler service started
+                                if ( $System.EventID -eq 400 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task Scheduler service started",$System.SystemTime)
+
+                                }
+
+                                # Task Scheduler service is stopping
+                                if ( $System.EventID -eq 402 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"Task Scheduler service is stopping",$System.SystemTime)
+
+                                }
+
+                                # System time change notification
+                                if ( $System.EventID -eq 411 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"System time change notification",$System.SystemTime)
+
+                                }
+
+                                # The task compatibility module started
+                                if ( $System.EventID -eq 700 ){
+
+                                    [TimeLine]::New($System.SystemTime,$System.Computer,"The task compatibility module started",$System.SystemTime)
+
+                                }
+
+                            }
+
                             # Microsoft-Windows-TerminalServices-LocalSessionManager/Operational
                             if ( $System.Channel -eq "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational" ) {
 
@@ -2725,16 +2933,8 @@ function EvtxFilter {
 
 }
 
-function UnityTest {
-
-    Write-Host "[+] UnityTest 1 : function GenerateEvenIdRequest 'System'" -NoNewline
-    If ( (GenerateEvenIdRequest 'System') -eq "*[System[EventID=8 or EventID=19 or EventID=26 or EventID=44 or EventID=98 or EventID=104 or EventID=1014 or EventID=7001 or EventID=7002 or EventID=7045 or EventID=20001 or EventID=20003]]" ) {
-        Write-Host -ForegroundColor Green " [Passed]"
-    } else {
-        Write-Host -ForegroundColor Red " [Error]"
-    }
-    
-
-}
-
-UnityTest
+# TEST PROTOCOL
+# (get-winEvent -FilterHashtable @{LogName="Microsoft-Windows-TaskScheduler/Operational"; ID=106 } -MaxEvents 1).Message | fl
+# EvtxFilter -LogSearch "Microsoft-Windows-TaskScheduler/Operational" -EventId 106 -EventLimit 1
+# (get-winEvent -FilterHashtable @{Path="E:\KIT_CC2022\12062022_0219PM_MIT-EXCHANGE\Microsoft-Windows-TaskScheduler%4Operational.evtx"; ID=106 } -MaxEvents 1).Message | fl
+# EvtxFilter -LogPath "E:\KIT_CC2022\12062022_0219PM_MIT-EXCHANGE\Microsoft-Windows-TaskScheduler%4Operational.evtx" -EventId 106 -EventLimit 1
